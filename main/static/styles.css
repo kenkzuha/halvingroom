@@ -673,6 +673,56 @@ body {
     border-left: 3px solid var(--color-accent);
 }
 
+/* User Authentication Styles */
+.user-auth-container {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.user-avatar i {
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.user-details {
+    display: flex;
+    align-items: center;
+}
+
+.username {
+    color: var(--color-text-primary);
+    font-weight: 500;
+    margin-right: 15px;
+}
+
+.logout-link {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    background-color: rgba(45, 55, 72, 0.5);
+}
+
+.logout-link:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-accent);
+}
+
 .nav-item i {
     margin-right: 15px;
     width: 20px;
