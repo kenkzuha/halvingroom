@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Halving Room - Crypto Portfolio Tracker</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <!-- Adding inline styles as a fallback to ensure some styling appears -->
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
@@ -16,9 +14,7 @@
         <!-- Sidebar Navigation -->
         <nav class="sidebar">
             <div class="logo-container">
-                <div class="logo">
-                    
-                </div>
+                <div class="logo"></div>
                 <h1 class="logo-text">The Halving Room</h1>
             </div>
             
@@ -55,23 +51,20 @@
                 </li>
             </ul> 
             {% if user.is_authenticated %}
-            
                 <div class="sidebar-user-section">
                     <div class="sidebar-user-container">
                         <div class="sidebar-username">
-                            <div class ="hello-section"><i class="fas fa-user"></i> Hello, {{ user.username }}!</div>
+                            <div class="hello-section"><i class="fas fa-user"></i> Hello, {{ user.username }}!</div>
                             <div class="logout-section">
-                            <a href="logout" class="sidebar-logout">Logout <i class="fa-solid fa-right-from-bracket fa-sm"></i></a>
+                                <a href="logout" class="sidebar-logout">Logout <i class="fa-solid fa-right-from-bracket fa-sm"></i></a>
                             </div>
                         </div>
                     </div>
-                    
                 </div>
-                {% endif %}
-                <div class="sidebar-footer">
-                    <p>© 2025 The Halving Room</p>
-                </div>
-                
+            {% endif %}
+            <div class="sidebar-footer">
+                <p>© 2025 The Halving Room</p>
+            </div>
         </nav>
 
         <!-- Main Content Area -->
@@ -85,410 +78,403 @@
                         <i class="fas fa-search"></i>
                         <input type="text" placeholder="Search...">
                     </div>
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Add Asset
-                    </button>
-                    {% if not user.is_authenticated %}
-                        <a href="{% url 'login' %}" class="btn btn-secondary" id="authButton">
-                            <i class="fas fa-user"></i>
-                            Login / Signup
-                        </a>
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-primary" id="addAssetButton">
+                            <i class="fas fa-plus"></i>
+                            Add Asset
+                        </button>
                     {% endif %}
                 </div>
             </header>
 
-            <div class="dashboard">
-                <!-- Portfolio Summary Card -->
-                <div class="card summary-card">
-                    <div class="card-header">
-                        <h3>Portfolio Summary</h3>
-                        <div class="card-options">
-                            <button class="btn-icon">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                            <select class="time-select">
-                                <option>24h</option>
-                                <option>7d</option>
-                                <option>30d</option>
-                                <option>90d</option>
-                                <option>1y</option>
-                                <option>All</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="portfolio-value">
-                            <h2>$7,943.92</h2>
-                            <div class="portfolio-change positive">
-                                <i class="fas fa-caret-up"></i>
-                                <span>4.32% ($142.67)</span>
+            {% if user.is_authenticated %}
+                <div class="dashboard">
+                    <!-- Portfolio Summary Card -->
+                    <div class="card summary-card">
+                        <div class="card-header">
+                            <h3>Portfolio Summary</h3>
+                            <div class="card-options">
+                                <button class="btn-icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <select class="time-select">
+                                    <option>24h</option>
+                                    <option>7d</option>
+                                    <option>30d</option>
+                                    <option>90d</option>
+                                    <option>1y</option>
+                                    <option>All</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="chart-container">
-                            <div class="portfolio-chart">
-                                <!-- Chart placeholder -->
-                                <div class="chart-placeholder">
-                                    <canvas id="portfolioChart"></canvas>  
+                        <div class="card-content">
+                            <div class="portfolio-value">
+                                <h2>$7,943.92</h2>
+                                <div class="portfolio-change positive">
+                                    <i class="fas fa-caret-up"></i>
+                                    <span>4.32% ($142.67)</span>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <div class="portfolio-chart">
+                                    <div class="chart-placeholder">
+                                        <canvas id="portfolioChart"></canvas>  
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Asset Allocation Card -->
-                <div class="card allocation-card">
-                    <div class="card-header">
-                        <h3>Asset Allocation</h3>
-                    </div>
-                    <div class="card-content allocation-content">
-                        <div class="allocation-chart">
-                            <!-- Donut chart placeholder -->
-                            <div class="donut-placeholder"></div>
+                    <!-- Asset Allocation Card -->
+                    <div class="card allocation-card">
+                        <div class="card-header">
+                            <h3>Asset Allocation</h3>
                         </div>
-                        <div class="allocation-list">
-                            <div class="allocation-item">
-                                <div class="allocation-color btc"></div>
-                                <div class="allocation-name">Bitcoin</div>
-                                <div class="allocation-percentage">62.4%</div>
+                        <div class="card-content allocation-content">
+                            <div class="allocation-chart">
+                                <div class="donut-placeholder"></div>
                             </div>
-                            <div class="allocation-item">
-                                <div class="allocation-color eth"></div>
-                                <div class="allocation-name">Ethereum</div>
-                                <div class="allocation-percentage">24.3%</div>
-                            </div>
-                            <div class="allocation-item">
-                                <div class="allocation-color sol"></div>
-                                <div class="allocation-name">Solana</div>
-                                <div class="allocation-percentage">8.7%</div>
-                            </div>
-                            <div class="allocation-item">
-                                <div class="allocation-color others"></div>
-                                <div class="allocation-name">Others</div>
-                                <div class="allocation-percentage">4.6%</div>
+                            <div class="allocation-list">
+                                <div class="allocation-item">
+                                    <div class="allocation-color btc"></div>
+                                    <div class="allocation-name">Bitcoin</div>
+                                    <div class="allocation-percentage">62.4%</div>
+                                </div>
+                                <div class="allocation-item">
+                                    <div class="allocation-color eth"></div>
+                                    <div class="allocation-name">Ethereum</div>
+                                    <div class="allocation-percentage">24.3%</div>
+                                </div>
+                                <div class="allocation-item">
+                                    <div class="allocation-color sol"></div>
+                                    <div class="allocation-name">Solana</div>
+                                    <div class="allocation-percentage">8.7%</div>
+                                </div>
+                                <div class="allocation-item">
+                                    <div class="allocation-color others"></div>
+                                    <div class="allocation-name">Others</div>
+                                    <div class="allocation-percentage">4.6%</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Assets Table -->
-                <div class="card assets-card">
-                    <div class="card-header">
-                        <h3>Your Assets</h3>
-                        <div class="card-options">
-                            <button class="btn-text">Show All</button>
+                    <!-- Assets Table -->
+                    <div class="card assets-card">
+                        <div class="card-header">
+                            <h3>Your Assets</h3>
+                            <div class="card-options">
+                                <button class="btn-text">Show All</button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <table class="assets-table">
+                                <thead>
+                                    <tr>
+                                        <th>Asset</th>
+                                        <th>Price</th>
+                                        <th>24h Change</th>
+                                        <th>Holdings</th>
+                                        <th>Value</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asset in user_assets %}
+                                        <tr>
+                                            <td>
+                                                <div class="asset-info">
+                                                    <div class="asset-icon {{ asset.symbol|lower }}-icon">
+                                                        <i class="fab fa-{{ asset.symbol|lower }}"></i>
+                                                    </div>
+                                                    <div class="asset-name">
+                                                        <h4>{{ asset.name }}</h4>
+                                                        <span>{{ asset.symbol }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>${{ asset.price }}</td>
+                                            <td class="change positive">+0.00%</td>
+                                            <td>{{ asset.holdings }} {{ asset.symbol }}</td>
+                                            <td>${{ asset.value }}</td>
+                                            <td>
+                                                <div class="asset-actions">
+                                                    <button class="btn-icon">
+                                                        <i class="fas fa-exchange-alt"></i>
+                                                    </button>
+                                                    <button class="btn-icon">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="card-content">
-                        <table class="assets-table">
-                            <thead>
-                                <tr>
-                                    <th>Asset</th>
-                                    <th>Price</th>
-                                    <th>24h Change</th>
-                                    <th>Holdings</th>
-                                    <th>Value</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="asset-info">
-                                            <div class="asset-icon btc-icon">
-                                                <i class="fab fa-bitcoin"></i>
-                                            </div>
-                                            <div class="asset-name">
-                                                <h4>Bitcoin</h4>
-                                                <span>BTC</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$66,743.21</td>
-                                    <td class="change positive">+3.42%</td>
-                                    <td>0.2578 BTC</td>
-                                    <td>$17,206.40</td>
-                                    <td>
-                                        <div class="asset-actions">
-                                            <button class="btn-icon">
-                                                <i class="fas fa-exchange-alt"></i>
-                                            </button>
-                                            <button class="btn-icon">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="asset-info">
-                                            <div class="asset-icon eth-icon">
-                                                <i class="fab fa-ethereum"></i>
-                                            </div>
-                                            <div class="asset-name">
-                                                <h4>Ethereum</h4>
-                                                <span>ETH</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$3,482.55</td>
-                                    <td class="change positive">+2.37%</td>
-                                    <td>1.9242 ETH</td>
-                                    <td>$6,700.74</td>
-                                    <td>
-                                        <div class="asset-actions">
-                                            <button class="btn-icon">
-                                                <i class="fas fa-exchange-alt"></i>
-                                            </button>
-                                            <button class="btn-icon">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="asset-info">
-                                            <div class="asset-icon sol-icon">
-                                                <span>SOL</span>
-                                            </div>
-                                            <div class="asset-name">
-                                                <h4>Solana</h4>
-                                                <span>SOL</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$142.33</td>
-                                    <td class="change negative">-1.24%</td>
-                                    <td>16.8453 SOL</td>
-                                    <td>$2,397.51</td>
-                                    <td>
-                                        <div class="asset-actions">
-                                            <button class="btn-icon">
-                                                <i class="fas fa-exchange-alt"></i>
-                                            </button>
-                                            <button class="btn-icon">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="asset-info">
-                                            <div class="asset-icon link-icon">
-                                                <span>LINK</span>
-                                            </div>
-                                            <div class="asset-name">
-                                                <h4>Chainlink</h4>
-                                                <span>LINK</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$18.74</td>
-                                    <td class="change positive">+5.62%</td>
-                                    <td>68.4213 LINK</td>
-                                    <td>$1,282.22</td>
-                                    <td>
-                                        <div class="asset-actions">
-                                            <button class="btn-icon">
-                                                <i class="fas fa-exchange-alt"></i>
-                                            </button>
-                                            <button class="btn-icon">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
-                <!-- Recent Transactions Preview -->
-                <div class="card transactions-card">
-                    <div class="card-header">
-                        <h3>Recent Transactions</h3>
-                        <div class="card-options">
-                            <button class="btn-text">View All</button>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="transaction-item">
-                            <div class="transaction-icon buy">
-                                <i class="fas fa-arrow-down"></i>
-                            </div>
-                            <div class="transaction-details">
-                                <div class="transaction-title">
-                                    <h4>Bought Bitcoin</h4>
-                                    <span class="transaction-date">May 12, 2025</span>
-                                </div>
-                                <div class="transaction-amount">
-                                    <span class="amount">+0.0432 BTC</span>
-                                    <span class="value">$2,883.31</span>
-                                </div>
+                    <!-- Recent Transactions Preview -->
+                    <div class="card transactions-card">
+                        <div class="card-header">
+                            <h3>Recent Transactions</h3>
+                            <div class="card-options">
+                                <button class="btn-text">View All</button>
                             </div>
                         </div>
-                        <div class="transaction-item">
-                            <div class="transaction-icon sell">
-                                <i class="fas fa-arrow-up"></i>
-                            </div>
-                            <div class="transaction-details">
-                                <div class="transaction-title">
-                                    <h4>Sold Ethereum</h4>
-                                    <span class="transaction-date">May 10, 2025</span>
+                        <div class="card-content">
+                            <div class="transaction-item">
+                                <div class="transaction-icon buy">
+                                    <i class="fas fa-arrow-down"></i>
                                 </div>
-                                <div class="transaction-amount">
-                                    <span class="amount">-1.2500 ETH</span>
-                                    <span class="value">$4,353.19</span>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">
+                                        <h4>Bought Bitcoin</h4>
+                                        <span class="transaction-date">May 12, 2025</span>
+                                    </div>
+                                    <div class="transaction-amount">
+                                        <span class="amount">+0.0432 BTC</span>
+                                        <span class="value">$2,883.31</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="transaction-icon buy">
-                                <i class="fas fa-arrow-down"></i>
-                            </div>
-                            <div class="transaction-details">
-                                <div class="transaction-title">
-                                    <h4>Bought Solana</h4>
-                                    <span class="transaction-date">May 8, 2025</span>
+                            <div class="transaction-item">
+                                <div class="transaction-icon sell">
+                                    <i class="fas fa-arrow-up"></i>
                                 </div>
-                                <div class="transaction-amount">
-                                    <span class="amount">+10.5000 SOL</span>
-                                    <span class="value">$1,494.47</span>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">
+                                        <h4>Sold Ethereum</h4>
+                                        <span class="transaction-date">May 10, 2025</span>
+                                    </div>
+                                    <div class="transaction-amount">
+                                        <span class="amount">-1.2500 ETH</span>
+                                        <span class="value">$4,353.19</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon buy">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">
+                                        <h4>Bought Solana</h4>
+                                        <span class="transaction-date">May 8, 2025</span>
+                                    </div>
+                                    <div class="transaction-amount">
+                                        <span class="amount">+10.5000 SOL</span>
+                                        <span class="value">$1,494.47</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="centered-message">
+                    <p>Please log in to use the application.</p>
+                    <a href="{% url 'login' %}" class="btn btn-secondary" id="authButton">
+                        <i class="fas fa-user"></i>
+                        Login / Signup
+                    </a>
+                </div>
+            {% endif %}
         </main>
     </div>
 
+    <!-- Add Asset Modal -->
+    <div id="addAssetModal" class="modal">
+        <div class="modal-content" style="width: 300px; height: 280px;"> <!-- Adjusted width and height -->
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Add Asset</h2>
+            <form id="addAssetForm">
+                <div class="input-group">
+                    <label for="symbol">Symbol</label>
+                    <select id="symbol" name="symbol" required>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                        <option value="SOL">SOL</option>
+                        <option value="BNB">BNB</option>
+                        <option value="XRP">XRP</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="holdings">Holdings</label>
+                    <input type="number" id="holdings" name="holdings" step="0.0001" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Asset</button>
+            </form>
+        </div>
+    </div>
 
-     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
-    
-    // Generate dates
-    const dates = [];
-    const now = new Date();
-    for (let i = 29; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(now.getDate() - i);
-        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    }
-    
-    // Generate data dengan pembulatan
-    let baseValue = 7800;
-    const portfolioData = [];
-    for (let i = 0; i < 30; i++) {
-        const dailyChange = baseValue * (Math.random() * 0.027 - 0.012);
-        baseValue += dailyChange;
-        portfolioData.push(Math.round(baseValue));
-    }
-    portfolioData[portfolioData.length - 1] = Math.round(7943.92);
-    
-    // Gradient fill
-    const gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
-    gradientFill.addColorStop(0, 'rgba(247, 147, 26, 0.6)');
-    gradientFill.addColorStop(0.8, 'rgba(247, 147, 26, 0.1)');
-    gradientFill.addColorStop(1, 'rgba(247, 147, 26, 0)');
-    
-    const portfolioChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Portfolio Value',
-                data: portfolioData,
-                borderColor: '#f7931a',
-                backgroundColor: gradientFill,
-                borderWidth: 2,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#f7931a',
-                pointHoverBorderColor: '#ffffff',
-                pointHoverBorderWidth: 2,
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: '#181e26',
-                    titleColor: '#ffffff',
-                    bodyColor: '#a0aec0',
-                    borderColor: '#2d3748',
-                    borderWidth: 1,
-                    padding: 10,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return '$ ' + Math.round(context.parsed.y).toLocaleString();
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: {
-                        display: true,
-                        color: '#718096',
-                        font: { size: 10 },
-                        maxRotation: 0,
-                        maxTicksLimit: 6
-                    }
-                },
-                y: {
-                    grid: { color: 'rgba(45, 55, 72, 0.3)', drawBorder: false },
-                    ticks: {
-                        display: true,
-                        color: '#718096',
-                        font: { size: 10 },
-                        callback: function(value) {
-                            return '$ ' + Math.round(value).toLocaleString();
-                        },
-                        maxTicksLimit: 5
-                    },
-                    min: Math.min(...portfolioData) * 0.98,
-                    max: Math.max(...portfolioData) * 1.02
-                }
-            },
-            interaction: { intersect: false, mode: 'index' },
-            elements: { line: { tension: 0.3 } }
+    <script>
+        // Modal functionality
+        const modal = document.getElementById("addAssetModal");
+        const btn = document.getElementById("addAssetButton");
+        const span = document.getElementById("closeModal");
+
+        // Open the modal when the button is clicked
+        btn.onclick = function() {
+            modal.style.display = "block";
         }
-    });
 
-    // Time selector event listener
-    const timeSelect = document.querySelector('.time-select');
-    if (timeSelect) {
-        timeSelect.addEventListener('change', function() {
-            let days = 30;
-            switch(this.value) {
-                case '24h': days = 1; break;
-                case '7d': days = 7; break;
-                case '30d': days = 30; break;
-                case '90d': days = 90; break;
-                case '1y': days = 365; break;
+        // Close the modal when the user clicks on <span> (x)
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when the user clicks anywhere outside of the modal
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Handle form submission
+        document.getElementById("addAssetForm").onsubmit = function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            const symbol = document.getElementById("symbol").value;
+            const holdings = document.getElementById("holdings").value;
+
+            // Here you would typically send the data to the server using AJAX
+            // For demonstration, we'll just log it to the console
+            console.log("Asset Added:", { symbol, holdings });
+
+            // Close the modal after submission
+            modal.style.display = "none";
+
+            // Optionally, you can reset the form
+            document.getElementById("addAssetForm").reset();
+        }
+    </script>
+
+    <script>
+        // Chart.js functionality remains intact
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            // Generate dates
+            const dates = [];
+            const now = new Date();
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(now.getDate() - i);
+                dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
             }
             
-            const newLabels = dates.slice(-days);
-            const newData = portfolioData.slice(-days);
+            // Generate data with rounding
+            let baseValue = 7800;
+            const portfolioData = [];
+            for (let i = 0; i < 30; i++) {
+                const dailyChange = baseValue * (Math.random() * 0.027 - 0.012);
+                baseValue += dailyChange;
+                portfolioData.push(Math.round(baseValue));
+            }
+            portfolioData[portfolioData.length - 1] = Math.round(7943.92);
             
-            portfolioChart.data.labels = newLabels;
-            portfolioChart.data.datasets[0].data = newData;
-            portfolioChart.update();
+            // Gradient fill
+            const gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
+            gradientFill.addColorStop(0, 'rgba(247, 147, 26, 0.6)');
+            gradientFill.addColorStop(0.8, 'rgba(247, 147, 26, 0.1)');
+            gradientFill.addColorStop(1, 'rgba(247, 147, 26, 0)');
+            
+            const portfolioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: portfolioData,
+                        borderColor: '#f7931a',
+                        backgroundColor: gradientFill,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: '#f7931a',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#181e26',
+                            titleColor: '#ffffff',
+                            bodyColor: '#a0aec0',
+                            borderColor: '#2d3748',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return '$ ' + Math.round(context.parsed.y).toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: {
+                                display: true,
+                                color: '#718096',
+                                font: { size: 10 },
+                                maxRotation: 0,
+                                maxTicksLimit: 6
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(45, 55, 72, 0.3)', drawBorder: false },
+                            ticks: {
+                                display: true,
+                                color: '#718096',
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return '$ ' + Math.round(value).toLocaleString();
+                                },
+                                maxTicksLimit: 5
+                            },
+                            min: Math.min(...portfolioData) * 0.98,
+                            max: Math.max(...portfolioData) * 1.02
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' },
+                    elements: { line: { tension: 0.3 } }
+                }
+            });
+
+            // Time selector event listener
+            const timeSelect = document.querySelector('.time-select');
+            if (timeSelect) {
+                timeSelect.addEventListener('change', function() {
+                    let days = 30;
+                    switch(this.value) {
+                        case '24h': days = 1; break;
+                        case '7d': days = 7; break;
+                        case '30d': days = 30; break;
+                        case '90d': days = 90; break;
+                        case '1y': days = 365; break;
+                    }
+                    
+                    const newLabels = dates.slice(-days);
+                    const newData = portfolioData.slice(-days);
+                    
+                    portfolioChart.data.labels = newLabels;
+                    portfolioChart.data.datasets[0].data = newData;
+                    portfolioChart.update();
+                });
+            }
         });
-    }
-});
     </script>
 </body>
 </html>

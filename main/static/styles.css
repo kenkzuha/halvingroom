@@ -733,6 +733,20 @@ body {
     justify-content: flex-end;
 }
 
+.centered-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    text-align: center;
+    color: var(--color-text-primary);
+    font-size: 1.5rem; /* Adjust font size as needed */
+    font-weight: 600; /* Bold text */
+    background-color: var(--color-card-bg); /* Optional: background color */
+    border-radius: var(--radius-md); /* Optional: rounded corners */
+    padding: 20px; /* Optional: padding */
+}
+
 .sidebar-logout {
     display: flex;
     align-items: center;
@@ -799,4 +813,103 @@ body {
     .summary-card, .allocation-card, .transactions-card, .assets-card {
         grid-column: span 1;
     }
+}
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: var(--color-card-bg);
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: var(--radius-md);
+}
+
+.close {
+    color: var(--color-text-secondary);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: var(--color-accent);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-card-bg);
+    color: var(--color-text-primary);
+}
+
+/* Style for select dropdown */
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-card-bg);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+select {
+    appearance: none; /* Remove default arrow */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%23ffffff"/></svg>'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Position the arrow */
+    background-size: 10px; /* Size of the arrow */
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+/* Hover effect for select dropdown */
+select:hover {
+    border-color: #f7931a; /* Change border color to orange on hover */
+    background-color: rgba(247, 147, 26, 0.1); /* Light orange background on hover */
+}
+
+/* Style for dropdown options (limited support) */
+select option {
+    background-color: var(--color-card-bg); /* Background color for options */
+    color: var(--color-text-primary); /* Text color for options */
+}
+
+select option:hover {
+    background-color: rgba(247, 147, 26, 0.1); /* Light orange background on hover for options */
+    color: var(--color-text-primary); /* Keep text color consistent */
 }
