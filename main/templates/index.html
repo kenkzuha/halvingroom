@@ -1,0 +1,354 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Halving Room - Crypto Portfolio Tracker</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <!-- Adding inline styles as a fallback to ensure some styling appears -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo-container">
+                <div class="logo">
+                </div>
+                <h1 class="logo-text">The Halving Room</h1>
+            </div>
+            
+            <ul class="nav-links">
+                <li class="nav-item active">
+                    <a href="#portfolio">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Portfolio</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#transactions">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#market">
+                        <i class="fas fa-coins"></i>
+                        <span>Market Prices</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#learn">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Learn</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 The Halving Room</p>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <header class="content-header">
+                <div class="header-left">
+                    <h2>Portfolio</h2>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Asset
+                    </button>
+                    {% if user.is_authenticated %}
+                        <span>Hello, {{ user.username }}</span>
+                        <a href="logout">Logout</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-secondary" id="authButton">
+                            <i class="fas fa-user"></i>
+                                Login / Signup
+                        </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <div class="dashboard">
+                <!-- Portfolio Summary Card -->
+                <div class="card summary-card">
+                    <div class="card-header">
+                        <h3>Portfolio Summary</h3>
+                        <div class="card-options">
+                            <button class="btn-icon">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <select class="time-select">
+                                <option>24h</option>
+                                <option>7d</option>
+                                <option>30d</option>
+                                <option>90d</option>
+                                <option>1y</option>
+                                <option>All</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="portfolio-value">
+                            <h2>$7,943.92</h2>
+                            <div class="portfolio-change positive">
+                                <i class="fas fa-caret-up"></i>
+                                <span>4.32% ($142.67)</span>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="portfolio-chart">
+                                <!-- Chart placeholder -->
+                                <div class="chart-placeholder"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Allocation Card -->
+                <div class="card allocation-card">
+                    <div class="card-header">
+                        <h3>Asset Allocation</h3>
+                    </div>
+                    <div class="card-content allocation-content">
+                        <div class="allocation-chart">
+                            <!-- Donut chart placeholder -->
+                            <div class="donut-placeholder"></div>
+                        </div>
+                        <div class="allocation-list">
+                            <div class="allocation-item">
+                                <div class="allocation-color btc"></div>
+                                <div class="allocation-name">Bitcoin</div>
+                                <div class="allocation-percentage">62.4%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-color eth"></div>
+                                <div class="allocation-name">Ethereum</div>
+                                <div class="allocation-percentage">24.3%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-color sol"></div>
+                                <div class="allocation-name">Solana</div>
+                                <div class="allocation-percentage">8.7%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-color others"></div>
+                                <div class="allocation-name">Others</div>
+                                <div class="allocation-percentage">4.6%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assets Table -->
+                <div class="card assets-card">
+                    <div class="card-header">
+                        <h3>Your Assets</h3>
+                        <div class="card-options">
+                            <button class="btn-text">Show All</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <table class="assets-table">
+                            <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>Price</th>
+                                    <th>24h Change</th>
+                                    <th>Holdings</th>
+                                    <th>Value</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="asset-info">
+                                            <div class="asset-icon btc-icon">
+                                                <i class="fab fa-bitcoin"></i>
+                                            </div>
+                                            <div class="asset-name">
+                                                <h4>Bitcoin</h4>
+                                                <span>BTC</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>$66,743.21</td>
+                                    <td class="change positive">+3.42%</td>
+                                    <td>0.2578 BTC</td>
+                                    <td>$17,206.40</td>
+                                    <td>
+                                        <div class="asset-actions">
+                                            <button class="btn-icon">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </button>
+                                            <button class="btn-icon">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="asset-info">
+                                            <div class="asset-icon eth-icon">
+                                                <i class="fab fa-ethereum"></i>
+                                            </div>
+                                            <div class="asset-name">
+                                                <h4>Ethereum</h4>
+                                                <span>ETH</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>$3,482.55</td>
+                                    <td class="change positive">+2.37%</td>
+                                    <td>1.9242 ETH</td>
+                                    <td>$6,700.74</td>
+                                    <td>
+                                        <div class="asset-actions">
+                                            <button class="btn-icon">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </button>
+                                            <button class="btn-icon">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="asset-info">
+                                            <div class="asset-icon sol-icon">
+                                                <span>SOL</span>
+                                            </div>
+                                            <div class="asset-name">
+                                                <h4>Solana</h4>
+                                                <span>SOL</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>$142.33</td>
+                                    <td class="change negative">-1.24%</td>
+                                    <td>16.8453 SOL</td>
+                                    <td>$2,397.51</td>
+                                    <td>
+                                        <div class="asset-actions">
+                                            <button class="btn-icon">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </button>
+                                            <button class="btn-icon">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="asset-info">
+                                            <div class="asset-icon link-icon">
+                                                <span>LINK</span>
+                                            </div>
+                                            <div class="asset-name">
+                                                <h4>Chainlink</h4>
+                                                <span>LINK</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>$18.74</td>
+                                    <td class="change positive">+5.62%</td>
+                                    <td>68.4213 LINK</td>
+                                    <td>$1,282.22</td>
+                                    <td>
+                                        <div class="asset-actions">
+                                            <button class="btn-icon">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </button>
+                                            <button class="btn-icon">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Preview -->
+                <div class="card transactions-card">
+                    <div class="card-header">
+                        <h3>Recent Transactions</h3>
+                        <div class="card-options">
+                            <button class="btn-text">View All</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="transaction-item">
+                            <div class="transaction-icon buy">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">
+                                    <h4>Bought Bitcoin</h4>
+                                    <span class="transaction-date">May 12, 2025</span>
+                                </div>
+                                <div class="transaction-amount">
+                                    <span class="amount">+0.0432 BTC</span>
+                                    <span class="value">$2,883.31</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-icon sell">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">
+                                    <h4>Sold Ethereum</h4>
+                                    <span class="transaction-date">May 10, 2025</span>
+                                </div>
+                                <div class="transaction-amount">
+                                    <span class="amount">-1.2500 ETH</span>
+                                    <span class="value">$4,353.19</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-icon buy">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">
+                                    <h4>Bought Solana</h4>
+                                    <span class="transaction-date">May 8, 2025</span>
+                                </div>
+                                <div class="transaction-amount">
+                                    <span class="amount">+10.5000 SOL</span>
+                                    <span class="value">$1,494.47</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

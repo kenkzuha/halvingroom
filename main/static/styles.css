@@ -1,0 +1,706 @@
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variables */
+:root {
+    --color-background: #0f1419;
+    --color-card-bg: #181e26;
+    --color-accent: #f7931a;
+    --color-accent-hover: #f8a943;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #a0aec0;
+    --color-text-tertiary: #718096;
+    --color-border: #2d3748;
+    --color-success: #38b2ac;
+    --color-danger: #e53e3e;
+    --color-btc: #f7931a;
+    --color-eth: #627eea;
+    --color-sol: #00ffbd;
+    --color-others: #718096;
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 8px 15px rgba(0, 0, 0, 0.2);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 15px;
+    --transition: all 0.3s ease;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+}
+
+/* Base styles */
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+}
+
+/* Layout */
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background-color: var(--color-card-bg);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 30px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.logo-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.nav-item {
+    margin-bottom: 5px;
+}
+
+.nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--color-text-secondary);
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+}
+
+.nav-item.active a {
+    color: var(--color-text-primary);
+    background-color: rgba(247, 147, 26, 0.1);
+    border-left: 3px solid var(--color-accent);
+}
+
+.nav-item a:hover {
+    color: var(--color-text-primary);
+    background-color: rgba(247, 147, 26, 0.05);
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+    width: 25px;
+    margin-right: 15px;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--color-text-tertiary);
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+}
+
+/* Main Content */
+.content {
+    flex: 1;
+    padding: 30px;
+    margin-left: 280px;
+    min-height: 100vh;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header-left h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-right: 15px;
+}
+
+.search-bar i {
+    position: absolute;
+    left: 15px;
+    color: var(--color-text-tertiary);
+}
+
+.btn-secondary {
+  background-color: var(--color-border);
+  color: var(--color-text-primary);
+  padding: 10px 15px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: var(--transition);
+  margin-left: 15px;
+  justify-content: center;
+}
+
+.btn-secondary i {
+  margin-right: 8px;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(45, 55, 72, 0.8);
+}
+
+
+.search-bar input {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px 10px 10px 40px;
+    color: var(--color-text-primary);
+    width: 250px;
+    transition: var(--transition);
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: var(--color-accent);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-accent-hover);
+}
+
+
+/* Dashboard grid */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.card {
+    background-color: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+/* Card layouts */
+.summary-card {
+    grid-column: span 4;
+}
+
+.allocation-card {
+    grid-column: span 2;
+}
+
+.transactions-card {
+    grid-column: span 2;
+}
+
+.assets-card {
+    grid-column: span 4;
+}
+
+/* Portfolio value and changes */
+.portfolio-value {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+
+.portfolio-value h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-right: 15px;
+}
+
+.portfolio-change {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.portfolio-change.positive {
+    color: var(--color-success);
+}
+
+.portfolio-change.negative {
+    color: var(--color-danger);
+}
+
+.portfolio-change i {
+    margin-right: 5px;
+}
+
+/* Chart placeholder */
+.chart-container {
+    width: 100%;
+    height: 200px;
+}
+
+.chart-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(247, 147, 26, 0.1) 0%, rgba(247, 147, 26, 0.05) 100%);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(247, 147, 26, 0.4) 0%, 
+        rgba(247, 147, 26, 0.2) 20%, 
+        rgba(247, 147, 26, 0.3) 40%, 
+        rgba(247, 147, 26, 0.4) 60%, 
+        rgba(247, 147, 26, 0.2) 80%, 
+        rgba(247, 147, 26, 0.4) 100%);
+    background-size: 200% 100%;
+    clip-path: polygon(
+        0 80%, 10% 70%, 20% 75%, 30% 60%, 40% 70%, 
+        50% 50%, 60% 55%, 70% 45%, 80% 40%, 90% 45%, 100% 30%, 
+        100% 100%, 0 100%
+    );
+    animation: pulse 2s infinite;
+}
+
+/* Asset table styles */
+.assets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.assets-table th {
+    text-align: left;
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.assets-table td {
+    padding: 15px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.asset-info {
+    display: flex;
+    align-items: center;
+}
+
+.asset-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+.asset-icon.btc-icon {
+    background-color: transparent;
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg');
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.asset-icon.eth-icon {
+    background-color: var(--color-eth);
+}
+
+.asset-icon.sol-icon {
+    background-color: var(--color-sol);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.asset-icon.link-icon {
+    background-color: #2A5ADA;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.change.positive {
+    color: var(--color-success);
+}
+
+.change.negative {
+    color: var(--color-danger);
+}
+
+/* Allocation chart */
+.allocation-content {
+    display: flex;
+    align-items: center;
+}
+
+.allocation-chart {
+    flex: 1;
+    position: relative;
+    height: 200px;
+}
+
+.donut-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 0 auto;
+    position: relative;
+    background: conic-gradient(
+        var(--color-btc) 0% 62.4%,
+        var(--color-eth) 62.4% 86.7%,
+        var(--color-sol) 86.7% 95.4%,
+        var(--color-others) 95.4% 100%
+    );
+}
+
+.donut-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background-color: var(--color-card-bg);
+    border-radius: 50%;
+}
+
+.allocation-list {
+    flex: 1;
+    padding-left: 20px;
+}
+
+.allocation-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.allocation-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.allocation-color.btc {
+    background-color: var(--color-btc);
+}
+
+.allocation-color.eth {
+    background-color: var(--color-eth);
+}
+
+.allocation-color.sol {
+    background-color: var(--color-sol);
+}
+
+.allocation-color.others {
+    background-color: var(--color-others);
+}
+
+/* Transactions */
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+.transaction-icon.buy {
+    background-color: var(--color-success);
+}
+
+.transaction-icon.sell {
+    background-color: var(--color-danger);
+}
+
+/* Responsive */
+@media screen and (max-width: 992px) {
+    .sidebar {
+        width: 80px;
+    }
+    .logo-text {
+        display: none;
+    }
+    .nav-item span {
+        display: none;
+    }
+    .content {
+        margin-left: 80px;
+    }
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .summary-card {
+        grid-column: span 2;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+    .summary-card, .allocation-card, .transactions-card, .assets-card {
+        grid-column: span 1;
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+:root {
+    --color-background: #0f1419;
+    --color-card-bg: #181e26;
+    --color-accent: #f7931a;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #a0aec0;
+    --color-border: #2d3748;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: var(--color-card-bg);
+    height: 100vh;
+    position: fixed;
+    border-right: 1px solid var(--color-border);
+    padding: 20px 0;
+}
+
+.content {
+    margin-left: 280px;
+    padding: 30px;
+    flex: 1;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 30px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.card {
+    background-color: var(--color-card-bg);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+.nav-item.active a {
+    color: var(--color-text-primary);
+    background-color: rgba(247, 147, 26, 0.1);
+    border-left: 3px solid var(--color-accent);
+}
+
+.nav-item i {
+    margin-right: 15px;
+    width: 20px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.summary-card {
+    grid-column: span 4;
+}
+
+.allocation-card, .transactions-card {
+    grid-column: span 2;
+}
+
+.assets-card {
+    grid-column: span 4;
+}
+
+@media screen and (max-width: 992px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+    .summary-card, .allocation-card, .transactions-card, .assets-card {
+        grid-column: span 1;
+    }
+}
