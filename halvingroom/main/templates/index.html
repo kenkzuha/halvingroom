@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Halving Room - Crypto Portfolio Tracker</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+
     <!-- Adding inline styles as a fallback to ensure some styling appears -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -17,7 +17,6 @@
         <nav class="sidebar">
             <div class="logo-container">
                 <div class="logo">
-                    
                 </div>
                 <h1 class="logo-text">The Halving Room</h1>
             </div>
@@ -55,23 +54,19 @@
                 </li>
             </ul> 
             {% if user.is_authenticated %}
-            
                 <div class="sidebar-user-section">
                     <div class="sidebar-user-container">
-                        <div class="sidebar-username">
-                            <div class ="hello-section"><i class="fas fa-user"></i> Hello, {{ user.username }}!</div>
-                            <div class="logout-section">
-                            <a href="logout" class="sidebar-logout">Logout <i class="fa-solid fa-right-from-bracket fa-sm"></i></a>
-                            </div>
+                        <div class="sidebar-user-avatar">
+                            <i class="fas fa-user"></i>
                         </div>
+                        <div class="sidebar-username">Hello, {{ user.username }}</div>
                     </div>
-                    
+                    <a href="logout" class="sidebar-logout">Logout</a>
                 </div>
                 {% endif %}
                 <div class="sidebar-footer">
                     <p>© 2025 The Halving Room</p>
                 </div>
-                
         </nav>
 
         <!-- Main Content Area -->
@@ -128,9 +123,7 @@
                         <div class="chart-container">
                             <div class="portfolio-chart">
                                 <!-- Chart placeholder -->
-                                <div class="chart-placeholder">
-                                    <canvas id="portfolioChart"></canvas>  
-                                </div>
+                                <div class="chart-placeholder"></div>
                             </div>
                         </div>
                     </div>
@@ -364,131 +357,5 @@
             </div>
         </main>
     </div>
-
-
-     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
-    
-    // Generate dates
-    const dates = [];
-    const now = new Date();
-    for (let i = 29; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(now.getDate() - i);
-        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    }
-    
-    // Generate data dengan pembulatan
-    let baseValue = 7800;
-    const portfolioData = [];
-    for (let i = 0; i < 30; i++) {
-        const dailyChange = baseValue * (Math.random() * 0.027 - 0.012);
-        baseValue += dailyChange;
-        portfolioData.push(Math.round(baseValue));
-    }
-    portfolioData[portfolioData.length - 1] = Math.round(7943.92);
-    
-    // Gradient fill
-    const gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
-    gradientFill.addColorStop(0, 'rgba(247, 147, 26, 0.6)');
-    gradientFill.addColorStop(0.8, 'rgba(247, 147, 26, 0.1)');
-    gradientFill.addColorStop(1, 'rgba(247, 147, 26, 0)');
-    
-    const portfolioChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Portfolio Value',
-                data: portfolioData,
-                borderColor: '#f7931a',
-                backgroundColor: gradientFill,
-                borderWidth: 2,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#f7931a',
-                pointHoverBorderColor: '#ffffff',
-                pointHoverBorderWidth: 2,
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: '#181e26',
-                    titleColor: '#ffffff',
-                    bodyColor: '#a0aec0',
-                    borderColor: '#2d3748',
-                    borderWidth: 1,
-                    padding: 10,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return '$ ' + Math.round(context.parsed.y).toLocaleString();
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: {
-                        display: true,
-                        color: '#718096',
-                        font: { size: 10 },
-                        maxRotation: 0,
-                        maxTicksLimit: 6
-                    }
-                },
-                y: {
-                    grid: { color: 'rgba(45, 55, 72, 0.3)', drawBorder: false },
-                    ticks: {
-                        display: true,
-                        color: '#718096',
-                        font: { size: 10 },
-                        callback: function(value) {
-                            return '$ ' + Math.round(value).toLocaleString();
-                        },
-                        maxTicksLimit: 5
-                    },
-                    min: Math.min(...portfolioData) * 0.98,
-                    max: Math.max(...portfolioData) * 1.02
-                }
-            },
-            interaction: { intersect: false, mode: 'index' },
-            elements: { line: { tension: 0.3 } }
-        }
-    });
-
-    // Time selector event listener
-    const timeSelect = document.querySelector('.time-select');
-    if (timeSelect) {
-        timeSelect.addEventListener('change', function() {
-            let days = 30;
-            switch(this.value) {
-                case '24h': days = 1; break;
-                case '7d': days = 7; break;
-                case '30d': days = 30; break;
-                case '90d': days = 90; break;
-                case '1y': days = 365; break;
-            }
-            
-            const newLabels = dates.slice(-days);
-            const newData = portfolioData.slice(-days);
-            
-            portfolioChart.data.labels = newLabels;
-            portfolioChart.data.datasets[0].data = newData;
-            portfolioChart.update();
-        });
-    }
-});
-    </script>
 </body>
 </html>
