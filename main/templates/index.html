@@ -106,7 +106,7 @@
                         </div>
                         <div class="card-content">
                             <div class="portfolio-value">
-                                <h2>$7,943.92</h2>
+                                <h2>$0.00</h2>
                                 <div class="portfolio-change positive">
                                     <i class="fas fa-caret-up"></i>
                                     <span>4.32% ($142.67)</span>
@@ -275,7 +275,7 @@
     }
     
     // Generate data with rounding
-    let baseValue = 7800;
+    let baseValue = 0;
     const portfolioData = [];
     for (let i = 0; i < 30; i++) {
         const dailyChange = baseValue * (Math.random() * 0.027 - 0.012);
@@ -397,5 +397,129 @@
     });
 });
     </script>
+
+    <script>
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the form element
+    const addAssetForm = document.getElementById('addAssetForm');
+    
+    // Initialize portfolio value from the displayed value
+    let currentPortfolioValue = parseFloat(document.querySelector('.portfolio-value h2').innerText.replace('$', '').replace(',', ''));
+    
+    // Add submit event listener to the form
+    if (addAssetForm) {
+        addAssetForm.addEventListener('submit', function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+            
+            // Get form inputs
+            const symbolSelect = document.getElementById('symbol');
+            const holdingsInput = document.getElementById('holdings');
+            
+            // Get selected symbol and holdings
+            const symbol = symbolSelect.value;
+            const holdings = parseFloat(holdingsInput.value);
+            
+            // Validate holdings is a number
+            if (isNaN(holdings) || holdings <= 0) {
+                alert('Please enter a valid positive number for holdings');
+                return;
+            }
+            
+            // Mock prices for demonstration
+            const prices = {
+                'BTC': 30000,
+                'ETH': 1800,
+                'SOL': 120,
+                'BNB': 350,
+                'XRP': 0.75
+            };
+            
+            // Calculate the asset value
+            const assetValue = holdings * prices[symbol];
+            
+            // Update the portfolio total value
+            currentPortfolioValue += assetValue;
+            
+            // Update the display of the portfolio value
+            const portfolioValueElement = document.querySelector('.portfolio-value h2');
+            portfolioValueElement.innerText = '$' + currentPortfolioValue.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            // Add the new asset to the table
+            addAssetToTable(symbol, prices[symbol], holdings, assetValue);
+            
+            // Update chart with new value
+            updatePortfolioChart(currentPortfolioValue);
+            
+            // Close the modal
+            document.getElementById('addAssetModal').style.display = 'none';
+            
+            // Reset the form
+            addAssetForm.reset();
+        });
+    }
+    
+    function addAssetToTable(symbol, price, holdings, value) {
+        const tableBody = document.querySelector('.assets-table tbody');
+        
+        // Create a new row
+        const newRow = document.createElement('tr');
+        
+        // Set the row content
+        newRow.innerHTML = `
+            <td>
+                <div class="asset-info">
+                    <div class="asset-icon ${symbol.toLowerCase()}-icon">
+                        <i class="fab fa-${symbol.toLowerCase()}"></i>
+                    </div>
+                    <div class="asset-name">
+                        <h4>${symbol}</h4>
+                        <span>${symbol}</span>
+                    </div>
+                </div>
+            </td>
+            <td>$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td class="change positive">+0.00%</td>
+            <td>${holdings} ${symbol}</td>
+            <td>$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        `;
+        
+        // Add the row to the table
+        tableBody.appendChild(newRow);
+        
+        // Update the allocation chart (simplified)
+        updateAllocationChart();
+    }
+    
+    function updatePortfolioChart(newValue) {
+        // Get the chart instance
+        const portfolioChart = Chart.instances[0];
+        
+        if (portfolioChart) {
+            // Get the data
+            const data = portfolioChart.data.datasets[0].data;
+            
+            // Add the new value to the end
+            if (data.length > 0) {
+                // Update the last data point to the new value
+                data[data.length - 1] = Math.round(newValue);
+                
+                // Update the chart
+                portfolioChart.update();
+            }
+        }
+    }
+    
+    function updateAllocationChart() {
+        // In a real application, this would recalculate the allocation percentages
+        console.log("Allocation chart would be updated here");
+    }
+});
+</script>
+    
 </body>
 </html>
