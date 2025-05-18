@@ -1,15 +1,43 @@
+import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from .models import UserAsset  # Import the UserAsset model
+from .models import UserAsset
+
 def index(request):
     user_assets = []
+    total_value = 0.00
     if request.user.is_authenticated:
         user_assets = UserAsset.objects.filter(user=request.user)  # Fetch user's assets
+        total_value = sum(asset.value for asset in user_assets)  # Calculate total value
     return render(request, 'index.html', {
         'current_user': request.session.get('site_user'),
-        'user_assets': user_assets  # Pass user assets to the template
+        'user_assets': user_assets,
+        'total_value': total_value  # Pass total value to the template
     })
+
+def add_asset(request):
+    if request.method == "POST":
+        symbol = request.POST['symbol']
+        holdings = float(request.POST['holdings'])
+
+        # Fetch real-time price from Binance API
+        response = requests.get(f'https://api.binance.com/api/v3/ticker/price?symbol={symbol}USDT')
+        if response.status_code == 200:
+            price_data = response.json()
+            price = float(price_data['price'])
+            value = holdings * price
+
+            # Save the asset to the database
+            user_asset = UserAsset(user=request.user, symbol=symbol, holdings=holdings, value=value, price=price)  # Ensure price is included
+            user_asset.save()
+            return redirect('index')  # Redirect to the index page after adding the asset
+        else:
+            messages.error(request, 'Failed to fetch the price. Please try again.')
+            return redirect('index')
+
+    return redirect('index')  # Redirect if not a POST request
+
 
 def signup(request):
     if request.method == "POST":
@@ -43,16 +71,3 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return redirect('/')
-
-def add_asset(request):
-    if request.method == "POST":
-        name = request.POST['name']
-        symbol = request.POST['symbol']
-        price = request.POST['price']
-        holdings = request.POST['holdings']
-        value = float(price) * float(holdings)  # Calculate the total value
-        # Create a new asset for the user
-        user_asset = UserAsset(user=request.user, name=name, symbol=symbol, price=price, holdings=holdings, value=value)
-        user_asset.save()
-        return redirect('/')  # Redirect to the index page after adding the asset
-    return render(request, 'add_asset.html')  # Render a form to add asset if GET request
