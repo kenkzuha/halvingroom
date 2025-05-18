@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Halving Room - Crypto Portfolio Tracker</title>
+    <title>Halving Room - Portfolio Tracker</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
@@ -17,7 +18,6 @@
                 <div class="logo"></div>
                 <h1 class="logo-text">The Halving Room</h1>
             </div>
-            
             <ul class="nav-links">
                 <li class="nav-item active">
                     <a href="#portfolio">
@@ -75,10 +75,13 @@
                 </div>
                 <div class="header-right">
                     <div class="search-bar">
-                      
                         <input type="text" placeholder="Search...">
                     </div>
                     {% if user.is_authenticated %}
+                        <button class="btn btn-secondary" id="refreshButton" style="margin-right: 20px;">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh Prices
+                        </button>
                         <button class="btn btn-primary" id="addAssetButton">
                             <i class="fas fa-plus"></i>
                             Add Asset
@@ -89,7 +92,6 @@
 
             {% if user.is_authenticated %}
                 <div class="dashboard">
-                    <!-- Portfolio Summary Card -->
                     <div class="card summary-card">
                         <div class="card-header">
                             <h3>Portfolio Summary</h3>
@@ -106,7 +108,7 @@
                         </div>
                         <div class="card-content">
                             <div class="portfolio-value">
-                                <h2>$0.00</h2>
+                                <h2 id="totalValue">${{ total_value|floatformat:2 }}</h2>
                                 <div class="portfolio-change positive">
                                     <i class="fas fa-caret-up"></i>
                                     <span>4.32% ($142.67)</span>
@@ -131,27 +133,18 @@
                             <div class="allocation-chart">
                                 <div class="donut-placeholder"></div>
                             </div>
-                            <div class="allocation-list">
+                            <div class="allocation-list" id="allocationList">
+                                {% for asset_percent in asset_percentages %}
                                 <div class="allocation-item">
-                                    <div class="allocation-color btc"></div>
-                                    <div class="allocation-name">Bitcoin </div>
-                                    <div class="allocation-percentage">92.4%</div>
+                                    <div class="allocation-color {{ asset_percent.symbol|lower }}"></div>
+                                    <div class="allocation-name">{{ asset_percent.symbol }} </div>
+                                    <div class="allocation-percentage">{{ asset_percent.percentage|floatformat:1 }}%</div>
                                 </div>
+                                {% empty %}
                                 <div class="allocation-item">
-                                    <div class="allocation-color eth"></div>
-                                    <div class="allocation-name">Ethereum </div>
-                                    <div class="allocation-percentage">24.3%</div>
+                                    <div class="allocation-name">No assets added yet</div>
                                 </div>
-                                <div class="allocation-item">
-                                    <div class="allocation-color sol"></div>
-                                    <div class="allocation-name">Solana </div>
-                                    <div class="allocation-percentage">8.7%</div>
-                                </div>
-                                <div class="allocation-item">
-                                    <div class="allocation-color others"></div>
-                                    <div class="allocation-name">Others </div>
-                                    <div class="allocation-percentage">4.6%</div>
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -170,11 +163,12 @@
                                         <th>24h Change</th>
                                         <th>Holdings</th>
                                         <th>Value</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="assetTableBody">
                                     {% for asset in user_assets %}
-                                        <tr>
+                                        <tr data-symbol="{{ asset.symbol }}">
                                             <td>
                                                 <div class="asset-info">
                                                     <div class="asset-icon {{ asset.symbol|lower }}-icon">
@@ -186,19 +180,29 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>${{ asset.price }}</td>  <!-- Display the price here -->
+                                            <td class="price-cell">${{ asset.price|floatformat:2 }}</td>
                                             <td class="change positive">+0.00%</td>
-                                            <td>{{ asset.holdings }} {{ asset.symbol }}</td>
-                                            <td>${{ asset.value }}</td>
+                                            <td class="holdings-cell">{{ asset.holdings }} {{ asset.symbol }}</td>
+                                            <td class="value-cell">${{ asset.value|floatformat:2 }}</td>
+                                            <td class="action-cell">
+                                                <button class="action-btn edit-btn" data-id="{{ asset.id }}" data-symbol="{{ asset.symbol }}" data-holdings="{{ asset.holdings }}">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                |
+                                                <button class="action-btn delete-btn" data-id="{{ asset.id }}" data-symbol="{{ asset.symbol }}">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr id="no-assets-row">
+                                            <td colspan="6" class="text-center">No assets added yet</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-                    <!-- Recent Transactions Preview -->
-                    
                 </div>
             {% else %}
                 <div class="centered-message">
@@ -212,8 +216,7 @@
         </main>
     </div>
 
-    <!-- Add Asset Modal -->
-    <!-- Add Asset Modal -->
+<!-- Add Asset Modal -->
 <div id="addAssetModal" class="modal">
     <div class="modal-content" style="width: 300px; height: 280px;">
         <span class="close" id="closeModal">&times;</span>
@@ -239,30 +242,232 @@
     </div>
 </div>
 
+<!-- Edit Asset Modal -->
+<div id="editAssetModal" class="modal">
+    <div class="modal-content" style="width: 300px; height: 280px;">
+        <span class="close" id="closeEditModal">&times;</span>
+        <h2>Edit Asset</h2>
+        <form id="editAssetForm" method="POST" action="{% url 'edit_asset' %}">
+            {% csrf_token %}
+            <input type="hidden" id="edit_asset_id" name="asset_id">
+            <div class="input-group">
+                <label for="edit_symbol">Symbol</label>
+                <input type="text" id="edit_symbol" name="symbol" readonly>
+            </div>
+            <div class="input-group">
+                <label for="edit_holdings">Holdings</label>
+                <input autocomplete="off" type="text" inputmode="numeric" id="edit_holdings" name="holdings" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Asset</button>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Asset Modal -->
+<div id="deleteAssetModal" class="modal">
+    <div class="modal-content" style="width: 300px; height: 220px;">
+        <span class="close" id="closeDeleteModal">&times;</span>
+        <h2>Delete Asset</h2>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <span id="delete_asset_symbol"></span> from your portfolio?</p>
+            <div class="delete-confirmation">
+                <form id="deleteAssetForm" method="POST" action="{% url 'delete_asset' %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="delete_asset_id" name="asset_id">
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    // Modal functionality
-    const modal = document.getElementById("addAssetModal");
-    const btn = document.getElementById("addAssetButton");
-    const span = document.getElementById("closeModal");
-    // Open the modal when the button is clicked
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
-    // Close the modal when the user clicks on <span> (x)
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-    // Close the modal when the user clicks anywhere outside of the modal
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+    // Add Asset Modal functionality
+    const addModal = document.getElementById("addAssetModal");
+    const addBtn = document.getElementById("addAssetButton");
+    const closeAddModal = document.getElementById("closeModal");
+
+    if (addBtn) {
+        addBtn.onclick = function() {
+            addModal.style.display = "block";
         }
+    }
+    
+    if (closeAddModal) {
+        closeAddModal.onclick = function() {
+            addModal.style.display = "none";
+        }
+    }
+
+    // Edit Asset Modal functionality
+    const editModal = document.getElementById("editAssetModal");
+    const closeEditModal = document.getElementById("closeEditModal");
+    
+    const editButtons = document.querySelectorAll('.edit-btn');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const assetId = this.getAttribute('data-id');
+            const symbol = this.getAttribute('data-symbol');
+            const holdings = this.getAttribute('data-holdings');
+            
+            document.getElementById('edit_asset_id').value = assetId;
+            document.getElementById('edit_symbol').value = symbol;
+            document.getElementById('edit_holdings').value = holdings;
+            
+            editModal.style.display = "block";
+        });
+    });
+    
+    if (closeEditModal) {
+        closeEditModal.onclick = function() {
+            editModal.style.display = "none";
+        }
+    }
+
+    // Delete Asset Modal functionality
+    const deleteModal = document.getElementById("deleteAssetModal");
+    const closeDeleteModal = document.getElementById("closeDeleteModal");
+    const cancelDeleteBtn = document.getElementById("cancelDelete");
+    
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const assetId = this.getAttribute('data-id');
+            const symbol = this.getAttribute('data-symbol');
+            
+            document.getElementById('delete_asset_id').value = assetId;
+            document.getElementById('delete_asset_symbol').textContent = symbol;
+            
+            deleteModal.style.display = "block";
+        });
+    });
+    
+    if (closeDeleteModal) {
+        closeDeleteModal.onclick = function() {
+            deleteModal.style.display = "none";
+        }
+    }
+    
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.onclick = function() {
+            deleteModal.style.display = "none";
+        }
+    }
+    
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        if (event.target == addModal) {
+            addModal.style.display = "none";
+        }
+        if (event.target == editModal) {
+            editModal.style.display = "none";
+        }
+        if (event.target == deleteModal) {
+            deleteModal.style.display = "none";
+        }
+    }
+    
+    // Price refresh functionality
+    const refreshButton = document.getElementById("refreshButton");
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            
+            fetch('/refresh_prices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error refreshing prices: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error while refreshing prices');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Prices';
+            });
+        });
+    }
+    
+    // Auto refresh prices every 5 minutes (300000 ms)
+    const AUTO_REFRESH_INTERVAL = 300000;
+    
+    function setupAutoRefresh() {
+        setInterval(() => {
+            if (document.getElementById("refreshButton")) {
+                console.log("Auto-refreshing prices...");
+                fetch('/refresh_prices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalValue').innerText = '$' + parseFloat(data.total_value).toFixed(2);
+                    }
+                })
+                .catch(error => {
+                    console.error('Auto-refresh error:', error);
+                });
+            }
+        }, AUTO_REFRESH_INTERVAL);
+    }
+    
+    if (document.getElementById("refreshButton")) {
+        setupAutoRefresh();
     }
 </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+<script>
+    const timeButtons = document.querySelectorAll('.time-button');
+timeButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        // Remove active class from all buttons
+        timeButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        this.classList.add('active');
+        
+        // Get the time period
+        const period = this.getAttribute('data-period');
+        
+        // Update chart based on selected period
+        let days = 30;
+        switch(period) {
+            case '24h': days = 1; break;
+            case '7d': days = 7; break;
+            case '30d': days = 30; break;
+            case '90d': days = 90; break;
+            case '1y': days = 365; break;
+            case 'all': days = portfolioData.length; break;
+        }
+        
+        const newLabels = dates.slice(-days);
+        const newData = portfolioData.slice(-days);
+        
+        portfolioChart.data.labels = newLabels;
+        portfolioChart.data.datasets[0].data = newData;
+        portfolioChart.update();
+    });
+});
+    document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('portfolioChart').getContext('2d');
     
     // Generate dates
@@ -282,7 +487,8 @@
         baseValue += dailyChange;
         portfolioData.push(Math.round(baseValue));
     }
-    portfolioData[portfolioData.length - 1] = Math.round(7943.92);
+    let currentPortfolioValue = parseFloat('{{ total_value }}'.replace(',', '')) || 0;
+    portfolioData[portfolioData.length - 1] = Math.round(currentPortfolioValue);
     
     // Gradient fill
     const gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
@@ -361,165 +567,8 @@
             elements: { line: { tension: 0.3 } }
         }
     });
-
-    // Time buttons event listeners
-    const timeButtons = document.querySelectorAll('.time-button');
-    
-    timeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            timeButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Get the time period
-            const period = this.getAttribute('data-period');
-            
-            // Update chart based on selected period
-            let days = 30;
-            switch(period) {
-                case '24h': days = 1; break;
-                case '7d': days = 7; break;
-                case '30d': days = 30; break;
-                case '90d': days = 90; break;
-                case '1y': days = 365; break;
-                case 'all': days = portfolioData.length; break;
-            }
-            
-            const newLabels = dates.slice(-days);
-            const newData = portfolioData.slice(-days);
-            
-            portfolioChart.data.labels = newLabels;
-            portfolioChart.data.datasets[0].data = newData;
-            portfolioChart.update();
-        });
-    });
-});
-    </script>
-
-    <script>
-// Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the form element
-    const addAssetForm = document.getElementById('addAssetForm');
-    
-    // Initialize portfolio value from the displayed value
-    let currentPortfolioValue = parseFloat(document.querySelector('.portfolio-value h2').innerText.replace('$', '').replace(',', ''));
-    
-    // Add submit event listener to the form
-    if (addAssetForm) {
-        addAssetForm.addEventListener('submit', function(event) {
-            // Prevent the default form submission
-            event.preventDefault();
-            
-            // Get form inputs
-            const symbolSelect = document.getElementById('symbol');
-            const holdingsInput = document.getElementById('holdings');
-            
-            // Get selected symbol and holdings
-            const symbol = symbolSelect.value;
-            const holdings = parseFloat(holdingsInput.value);
-            
-            // Validate holdings is a number
-            if (isNaN(holdings) || holdings <= 0) {
-                alert('Please enter a valid positive number for holdings');
-                return;
-            }
-            
-            // Mock prices for demonstration
-            const prices = {
-                'BTC': 30000,
-                'ETH': 1800,
-                'SOL': 120,
-                'BNB': 350,
-                'XRP': 0.75
-            };
-            
-            // Calculate the asset value
-            const assetValue = holdings * prices[symbol];
-            
-            // Update the portfolio total value
-            currentPortfolioValue += assetValue;
-            
-            // Update the display of the portfolio value
-            const portfolioValueElement = document.querySelector('.portfolio-value h2');
-            portfolioValueElement.innerText = '$' + currentPortfolioValue.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            
-            // Add the new asset to the table
-            addAssetToTable(symbol, prices[symbol], holdings, assetValue);
-            
-            // Update chart with new value
-            updatePortfolioChart(currentPortfolioValue);
-            
-            // Close the modal
-            document.getElementById('addAssetModal').style.display = 'none';
-            
-            // Reset the form
-            addAssetForm.reset();
-        });
-    }
-    
-    function addAssetToTable(symbol, price, holdings, value) {
-        const tableBody = document.querySelector('.assets-table tbody');
-        
-        // Create a new row
-        const newRow = document.createElement('tr');
-        
-        // Set the row content
-        newRow.innerHTML = `
-            <td>
-                <div class="asset-info">
-                    <div class="asset-icon ${symbol.toLowerCase()}-icon">
-                        <i class="fab fa-${symbol.toLowerCase()}"></i>
-                    </div>
-                    <div class="asset-name">
-                        <h4>${symbol}</h4>
-                        <span>${symbol}</span>
-                    </div>
-                </div>
-            </td>
-            <td>$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td class="change positive">+0.00%</td>
-            <td>${holdings} ${symbol}</td>
-            <td>$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        `;
-        
-        // Add the row to the table
-        tableBody.appendChild(newRow);
-        
-        // Update the allocation chart (simplified)
-        updateAllocationChart();
-    }
-    
-    function updatePortfolioChart(newValue) {
-        // Get the chart instance
-        const portfolioChart = Chart.instances[0];
-        
-        if (portfolioChart) {
-            // Get the data
-            const data = portfolioChart.data.datasets[0].data;
-            
-            // Add the new value to the end
-            if (data.length > 0) {
-                // Update the last data point to the new value
-                data[data.length - 1] = Math.round(newValue);
-                
-                // Update the chart
-                portfolioChart.update();
-            }
-        }
-    }
-    
-    function updateAllocationChart() {
-        // In a real application, this would recalculate the allocation percentages
-        console.log("Allocation chart would be updated here");
-    }
 });
 </script>
-    
+
 </body>
 </html>
