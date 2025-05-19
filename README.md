@@ -1,6 +1,6 @@
 # 🪙 The Halving Room - Crypto Portfolio Tracker
 
-A full-featured cryptocurrency portfolio tracker built with **Django**, **HTML/CSS**, and **Chart.js**, designed for easy tracking of your crypto assets, real-time market prices, and historical profit performance.
+A full-featured cryptocurrency portfolio tracker built with **Django**, **HTML/CSS**, Javascript, and **Chart.js**, designed for easy tracking of your crypto assets, real-time market prices, and historical profit performance.
 
 ---
 
