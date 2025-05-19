@@ -20,6 +20,8 @@
     --color-btc: #f7931a;
     --color-eth: #627eea;
     --color-sol: #00ffbd;
+    --color-bnb: #f8a943;
+    --color-xrp: #2d3748;
     --color-others: #718096;
     --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 8px 15px rgba(0, 0, 0, 0.2);
@@ -187,16 +189,13 @@ button {
 }
 
 .btn-secondary {
-  background-color: var(--color-border);
+  background-color: rgba(247, 147, 26, 0.1);
   color: var(--color-text-primary);
   padding: 10px 15px;
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
   font-weight: 500;
   transition: var(--transition);
-  margin-left: 15px;
-  justify-content: center;
+  margin-right: 5px;
 }
 
 .btn-secondary i {
@@ -204,7 +203,25 @@ button {
 }
 
 .btn-secondary:hover {
-  background-color: rgba(45, 55, 72, 0.8);
+  background-color: var(--color-accent);
+}
+
+.btn-danger {
+  background-color: rgba(247, 147, 26, 0.1);
+  color: var(--color-text-primary);
+  padding: 10px 15px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+  margin-left: 5px;
+}
+
+.btn-danger i {
+  margin-right: 8px;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-danger);
 }
 
 
@@ -427,6 +444,10 @@ button {
     position: relative;
     height: 200px;
 }
+#assetAllocationChart {
+    width: 100%;
+    height: 250px;
+}
 
 .donut-placeholder {
     width: 150px;
@@ -484,8 +505,16 @@ button {
     background-color: var(--color-sol);
 }
 
+.allocation-color.bnb {
+    background-color: var(--color-bnb);
+}
+
+.allocation-color.xrp {
+    background-color: var(--color-xrp);
+}
+
 .allocation-color.others {
-    background-color: var(--color-others);
+    background-color: var(--color-bnb);
 }
 
 /* Transactions */
@@ -844,6 +873,14 @@ body {
     font-weight: bold;
 }
 
+.modal-actions{
+    display: flex;
+    margin-top: 15px;
+    margin-left: 1px;
+    justify-content: center;
+
+}
+
 .close:hover,
 .close:focus {
     color: var(--color-accent);
@@ -926,3 +963,23 @@ select:focus {
     color: #ffffff;
 }
 
+
+.empty-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140px;
+    height: 140px;
+    background-color: rgba(255, 255, 255, 0.02); /* Semi-transparent circle */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-text {
+    color: #7a8699;
+    font-weight: 500;
+    font-size: 14px;
+}

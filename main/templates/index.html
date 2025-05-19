@@ -124,31 +124,6 @@
                         </div>
                     </div>
 
-                    <!-- Asset Allocation Card -->
-                    <div class="card allocation-card">
-                        <div class="card-header">
-                            <h3>Asset Allocation</h3>
-                        </div>
-                        <div class="card-content allocation-content">
-                            <div class="allocation-chart">
-                                <div class="donut-placeholder"></div>
-                            </div>
-                            <div class="allocation-list" id="allocationList">
-                                {% for asset_percent in asset_percentages %}
-                                <div class="allocation-item">
-                                    <div class="allocation-color {{ asset_percent.symbol|lower }}"></div>
-                                    <div class="allocation-name">{{ asset_percent.symbol }} </div>
-                                    <div class="allocation-percentage">{{ asset_percent.percentage|floatformat:1 }}%</div>
-                                </div>
-                                {% empty %}
-                                <div class="allocation-item">
-                                    <div class="allocation-name">No assets added yet</div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Assets Table -->
                     <div class="card assets-card">
                         <div class="card-header">
@@ -203,6 +178,64 @@
                             </table>
                         </div>
                     </div>
+
+                    
+<!-- Asset Allocation Card -->
+<div class="card allocation-card">
+    <div class="card-header">
+        <h3>Asset Allocation</h3>
+    </div>
+    <div class="card-content allocation-content">
+        <div class="allocation-chart">
+            <canvas id="assetAllocationChart"></canvas>
+                <div class="empty-circle" id="noAssetOverlay">
+                    
+                </div>
+        </div>
+        <div class="allocation-list" id="allocationList">
+            {% for asset_percent in asset_percentages %}
+            <div class="allocation-item">
+                <div class="allocation-color {{ asset_percent.symbol|lower }}"></div>
+                <div class="allocation-name">{{ asset_percent.symbol }}</div>
+                <div class="allocation-percentage">{{ asset_percent.percentage|floatformat:1 }}%</div>
+            </div>
+            {% empty %}
+            <div class="allocation-item">
+                <div class="allocation-name">No assets added yet</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="card allocation-card">
+    <div class="card-header">
+        <h3>Recent Activity</h3>
+    </div>
+    <div class="card-content">
+        <div class="recent-activity-list" id="recentActivityList">
+            {% if recent_activities %}
+                {% for activity in recent_activities %}
+                <div class="activity-item">
+                    <div class="activity-icon {{ activity.symbol|lower }}-icon">
+                        <i class="fab fa-{{ activity.symbol|lower }}"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-title">Added {{ activity.holdings }} {{ activity.symbol }}</div>
+                        <div class="activity-value">Value: ${{ activity.value|floatformat:2 }}</div>
+                        <div class="activity-time">{{ activity.created_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-activity">
+                    <p>No recent activity</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
                 </div>
             {% else %}
                 <div class="centered-message">
@@ -265,7 +298,7 @@
 
 <!-- Delete Asset Modal -->
 <div id="deleteAssetModal" class="modal">
-    <div class="modal-content" style="width: 300px; height: 220px;">
+    <div class="modal-content" style="width: 300px; height: 190px;">
         <span class="close" id="closeDeleteModal">&times;</span>
         <h2>Delete Asset</h2>
         <div class="modal-body">
@@ -568,7 +601,125 @@ timeButtons.forEach(button => {
         }
     });
 });
+
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('assetAllocationChart');
+    const ctx = canvas.getContext('2d');
+    const allocationItems = document.querySelectorAll('.allocation-item');
+
+    // Cek apakah ada aset valid
+    let hasAssets = false;
+    allocationItems.forEach(item => {
+        const nameElement = item.querySelector('.allocation-name');
+        if (nameElement && !nameElement.textContent.toLowerCase().includes('no assets')) {
+            hasAssets = true;
+        }
+    });
+    const noAssetOverlay = document.getElementById('noAssetOverlay');
+if (hasAssets) {
+    noAssetOverlay.style.display = 'none';
+} else {
+    noAssetOverlay.style.display = 'flex'; // atau 'block' juga bisa
+}
+    if (hasAssets) {
+        const labels = [];
+        const data = [];
+        const backgroundColors = [];
+
+        allocationItems.forEach(item => {
+            const nameElement = item.querySelector('.allocation-name');
+            const percentElement = item.querySelector('.allocation-percentage');
+            const colorElement = item.querySelector('.allocation-color');
+
+            if (nameElement && percentElement && !nameElement.textContent.toLowerCase().includes('no assets')) {
+                const symbol = nameElement.textContent.trim();
+                const percentage = parseFloat(percentElement.textContent);
+                labels.push(symbol);
+                data.push(percentage);
+
+                let color = '#181e26'; // default color
+                if (colorElement?.classList.contains('btc')) color = '#f7931a';
+                else if (colorElement?.classList.contains('eth')) color = '#627eea';
+                else if (colorElement?.classList.contains('sol')) color = '#00ffbd';
+                else if (colorElement?.classList.contains('bnb')) color = '#f8a943';
+                else if (colorElement?.classList.contains('xrp')) color = '#346aa9';
+
+                backgroundColors.push(color);
+            }
+        });
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: Array(data.length).fill('#181e26'),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        const noDataPlugin = {
+            id: 'noDataText',
+            afterDraw(chart) {
+                const { width, height } = chart;
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.clearRect(0, 0, width, height);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#718096';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('No assets', width / 2, height / 2);
+                ctx.restore();
+            }
+        };
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: []
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            },
+            plugins: [noDataPlugin]
+        });
+    }
+});
+</script>
+
+
 
 </body>
 </html>
