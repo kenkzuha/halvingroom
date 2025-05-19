@@ -189,13 +189,14 @@ button {
 }
 
 .btn-secondary {
-  background-color: rgba(247, 147, 26, 0.1);
-  color: var(--color-text-primary);
+  background-color: var(--color-accent);
+  color: #ffffff;
   padding: 10px 15px;
   border-radius: var(--radius-md);
   font-weight: 500;
   transition: var(--transition);
   margin-right: 5px;
+  border: none;
 }
 
 .btn-secondary i {
@@ -203,7 +204,7 @@ button {
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-accent);
+  background-color: var(--color-accent-hover);
 }
 
 .btn-danger {
@@ -254,12 +255,12 @@ button {
 }
 
 .btn-primary {
-    background-color: var(--color-accent);
-    color: #ffffff;
+  background-color: var(--color-accent);
+  color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: var(--color-accent-hover);
+  background-color: var(--color-accent-hover);
 }
 
 
@@ -982,4 +983,17 @@ select:focus {
     color: #7a8699;
     font-weight: 500;
     font-size: 14px;
+}
+
+.allocation-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.allocation-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
 }

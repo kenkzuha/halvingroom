@@ -138,11 +138,11 @@ def add_asset(request):
             else:
                 # Fallback prices if API fails
                 fallback_prices = {
-                    'BTC': Decimal('30000'),
-                    'ETH': Decimal('1800'),
-                    'SOL': Decimal('120'),
-                    'BNB': Decimal('350'),
-                    'XRP': Decimal('0.75')
+                    'BTC': Decimal('103000'),
+                    'ETH': Decimal('2500'),
+                    'SOL': Decimal('170'),
+                    'BNB': Decimal('650'),
+                    'XRP': Decimal('2.35')
                 }
                 price = fallback_prices.get(symbol, Decimal('0'))
                 messages.warning(request, f'Could not fetch live price for {symbol}. Using fallback price.')
@@ -203,7 +203,6 @@ def login(request):
         else:
             messages.info(request, 'Username/Password invalid')
             return redirect('login')
-        
     return render(request, 'login.html')   
 
 def logout(request):
