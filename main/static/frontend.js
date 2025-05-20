@@ -450,3 +450,25 @@ function initializeAssetAllocationChart() {
         });
     }
 }
+
+
+
+function initializeModals() {
+    // Add Asset Modal
+    const addOverall = document.getElementById("Overall-profit");
+    const addBtn = document.getElementById("overall-profit");
+    const closeAddOverall = document.getElementById("closeOverallprofit");
+
+    if (addBtn) {
+        addBtn.onclick = function() {
+            addOverall.style.display = "block";
+        }
+    }
+    
+    if (closeAddOverall) {
+        closeAddOverall.onclick = function() {
+            addOverall.style.display = "none";
+        }
+    }
+
+}

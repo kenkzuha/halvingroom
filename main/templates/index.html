@@ -111,8 +111,10 @@
                             <div class="portfolio-value">
                                 <h2 id="totalValue">${{ total_value|floatformat:2 }}</h2>
                                 <div class="portfolio-change positive">
-                                    <i class="fas fa-caret-up"></i>
-                                    <span>4.32% ($142.67)</span>
+                                    <button class="btn-overallprofit" id="overall-profit">
+                                        <i class="fas fa-caret-up"></i>
+                                        <span class="">4.32% ($142.67)</span>
+                                    </button>
                                 </div>
                             </div>
                             <div class="chart-container">
@@ -276,6 +278,14 @@
             </div>
             <button type="submit" class="btn btn-primary">Add Asset</button>
         </form>
+    </div>
+</div>
+
+<!-- Overall profit Popup Modal -->
+<div id="Overall-profit" class="modal">
+    <div class="modal-content" style="width: 300px; height: 280px;">
+        <span class="close" id="closeOverallprofit">&times;</span>
+        
     </div>
 </div>
 
