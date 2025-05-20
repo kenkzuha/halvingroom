@@ -8,6 +8,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+
+def get_price_change_percent(symbol):
+    url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={symbol}"
+    response = requests.get(url)
+    data = response.json()
+    return float(data['priceChangePercent'])
 def index(request):
     user_assets = []
     total_value = Decimal('0.00')

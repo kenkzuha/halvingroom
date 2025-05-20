@@ -1039,3 +1039,18 @@ select:focus {
 .btn-overallprofit{
     font-size: 16px;
 }
+
+.portfolio-change.positive {
+    color: #28a745; /* hijau */
+}
+
+.portfolio-change.negative {
+    color: #dc3545; /* merah */
+}
+
+.colornaik{
+    color:#28a745;
+}
+.colorturun{
+    color:#28a745;
+}

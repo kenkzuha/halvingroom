@@ -111,9 +111,8 @@
                             <div class="portfolio-value">
                                 <h2 id="totalValue">${{ total_value|floatformat:2 }}</h2>
                                 <div class="portfolio-change positive">
-                                    <button class="btn-overallprofit" id="overallprofit">
-                                        <i class="fas fa-caret-up"></i>
-                                        <span class="">4.32% ($142.67)</span>
+                                    <button class="btn-overallprofit" id="changeElement">
+                                        <h2 id="totalValue" data-previous="{{ previous_value|floatformat:2 }}">${{ total_value|floatformat:2 }}</h2>
                                     </button>
                                 </div>
                             </div>
@@ -159,7 +158,7 @@
                                                 </div>
                                             </td>
                                             <td class="price-cell">${{ asset.price|floatformat:2 }}</td>
-                                            <td class="change positive">+0.00%</td>
+                                            <td class="change positive">0.00%</td>
                                             <td class="holdings-cell">{{ asset.holdings|floatformat:8 }} {{ asset.symbol }}</td>
                                             <td class="value-cell">${{ asset.value|floatformat:2 }}</td>
                                             <td class="action-cell">
@@ -214,7 +213,7 @@
     </div>
 </div>
 
-<div class="card allocation-card">
+                    <div class="card allocation-card">
                         <div class="card-header">
                             <h3>Recent Activity</h3>
                         </div>
@@ -227,9 +226,9 @@
                                             <i class="fab fa-{{ activity.symbol|lower }}"></i>
                                         </div>
                                         <div class="activity-details">
-                                            <div class="activity-title">Added {{ activity.holdings }} {{ activity.symbol }}</div>
-                                            <div class="activity-value">Value: ${{ activity.value|floatformat:2 }}</div>
-                                            <div class="activity-time">{{ activity.created_at|date:"M d, Y H:i" }}</div>
+                                             <div class="activity-title">${actionText}</div>
+                                            <div class="activity-value">Value: $${parseFloat(value).toFixed(2)}</div>
+                                            <div class="activity-time">${time}</div>
                                         </div>
                                     </div>
                                     {% endfor %}

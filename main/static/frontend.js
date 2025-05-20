@@ -103,7 +103,7 @@ function initializeModals() {
     }
 
     const addOverall = document.getElementById("Overallprofit");
-    const addbtn = document.getElementById("overallprofit");
+    const addbtn = document.getElementById("changeElement");
     const closeAddOverall = document.getElementById("closeOverallProfit");
 
     if (addbtn) {
@@ -466,3 +466,62 @@ function initializeAssetAllocationChart() {
         });
     }
 }
+
+// bagian 24hr changes
+document.addEventListener("DOMContentLoaded", function () {
+    const rows = document.querySelectorAll("#assetTableBody tr[data-symbol]");
+
+    rows.forEach(row => {
+        const symbol = row.getAttribute("data-symbol").toUpperCase() + "USDT";
+        const changeCell = row.querySelector(".change");
+
+        fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to fetch Binance API");
+                return response.json();
+            })
+            .then(data => {
+                const percentChange = parseFloat(data.priceChangePercent).toFixed(2);
+                changeCell.textContent = `${percentChange > 0 ? '+' : ''}${percentChange}%`;
+                changeCell.classList.remove("positive", "negative");
+
+                if (percentChange >= 0) {
+                    changeCell.classList.add("positive");
+                    changeCell.innerHTML = `<div class="colornaik"><i class="fas fa-caret-up"></i> ${percentChange}%</div>`;
+                } else {
+                    changeCell.classList.add("negative");
+                    changeCell.innerHTML = `<div class="colorturun"><i class="fas fa-caret-down"></i> ${percentChange}%</div>`;
+                }
+            })
+            .catch(error => {
+                console.error(`Error fetching price for ${symbol}:`, error);
+                changeCell.textContent = "N/A";
+            });
+    });
+});
+
+
+//bagian ini --> yang persentase (+2% (24$)) bagian portofolio summary
+document.addEventListener("DOMContentLoaded", () => {
+    const totalValueEl = document.getElementById("totalValue");
+    const changeEl = document.getElementById("changeElement");
+
+    const currentValue = parseFloat(totalValueEl.textContent.replace(/[^0-9.]/g, ""));
+    const previousValue = parseFloat(totalValueEl.dataset.previous);
+
+    const difference = currentValue - previousValue;
+    const percentage = previousValue > 0 ? (difference / previousValue) * 100 : 0;
+    const isGain = difference >= 0;
+
+    const arrow = isGain
+        ? '<i class="fas fa-caret-up"></i>'
+        : '<i class="fas fa-caret-down"></i>';
+
+    const textColor = isGain ? "#28a745" : "#dc3545";
+
+    changeEl.innerHTML = `
+        ${arrow} ${Math.abs(percentage).toFixed(2)}%
+        (<span style="color:${textColor}">$${Math.abs(difference).toFixed(2)}</span>)
+    `;
+    changeEl.style.color = textColor;
+});
