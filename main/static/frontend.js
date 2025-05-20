@@ -466,5 +466,3 @@ function initializeAssetAllocationChart() {
         });
     }
 }
-
-

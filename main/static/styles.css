@@ -141,6 +141,20 @@ button {
     margin-right: 15px;
 }
 
+.auth-footer {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+    }
+    .auth-footer a {
+      color: var(--color-accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
 .sidebar-footer {
     padding: 20px;
     text-align: center;
@@ -186,25 +200,6 @@ button {
     position: absolute;
     left: 15px;
     color: var(--color-text-tertiary);
-}
-
-.btn-secondary {
-  background-color: var(--color-accent);
-  color: #ffffff;
-  padding: 10px 15px;
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  transition: var(--transition);
-  margin-right: 5px;
-  border: none;
-}
-
-.btn-secondary i {
-  margin-right: 8px;
-}
-
-.btn-secondary:hover {
-  background-color: var(--color-accent-hover);
 }
 
 .btn-danger {
@@ -763,18 +758,61 @@ body {
     justify-content: flex-end;
 }
 
+/* Updated centered-message class to use flex-column */
 .centered-message {
     display: flex;
+    flex-direction: column; /* Changed from row to column */
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Full height of the viewport */
+    height: 100vh;
     text-align: center;
     color: var(--color-text-primary);
-    font-size: 1.5rem; /* Adjust font size as needed */
-    font-weight: 600; /* Bold text */
-    background-color: var(--color-card-bg); /* Optional: background color */
-    border-radius: var(--radius-md); /* Optional: rounded corners */
-    padding: 20px; /* Optional: padding */
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: var(--color-card-bg);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    gap: 10px; /* Adds space between the welcome text and the button */
+}
+
+/* Style for the login button */
+.centered-message .btn-secondary {
+    font-size: 0.9rem; /* Smaller text */
+    padding: 8px 15px; /* Reduced padding for smaller button */
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 10px; /* Additional space from the text */
+}
+
+.centered-message .btn-secondary i {
+    font-size: 0.8rem; /* Smaller icon */
+}
+
+/* Optional: Add a subtle animation to make the button more inviting */
+.centered-message .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  padding: 10px 15px;
+  border-radius: var(--radius-md);
+  font-weight: 300px;
+  transition: var(--transition);
+  margin-right: 5px;
+  border: none;
+
+}
+
+.btn-secondary i {
+  margin-right: 8px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-accent-hover);
 }
 
 .sidebar-logout {
