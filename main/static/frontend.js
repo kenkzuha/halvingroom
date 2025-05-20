@@ -453,7 +453,7 @@ function initializeAssetAllocationChart() {
 
 
 
-function initializeModals() {
+function initializeverallprofit() {
     // Add Asset Modal
     const addOverall = document.getElementById("Overall-profit");
     const addBtn = document.getElementById("overall-profit");
