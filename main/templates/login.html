@@ -109,9 +109,6 @@
           <i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>
           Login
         </button>
-        {% for message in messages %}
-        <h3>{{ message }}</h3>
-        {%  endfor %}
       </form>
       <p class="auth-footer">
         Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
