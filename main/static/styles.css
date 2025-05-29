@@ -403,18 +403,139 @@ button {
     background-color: transparent;
     background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg');
     background-size: 80%;
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
 
 .asset-icon.eth-icon {
-    background-color: var(--color-eth);
+    background-color: transparent;
+    background-image: url('https://www.citypng.com/public/uploads/preview/ethereum-eth-round-logo-icon-png-701751694969815akblwl2552.png');
+    color: blue;
+    background-size: 80%;
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .asset-icon.sol-icon {
-    background-color: var(--color-sol);
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png');
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
     font-size: 0.8rem;
     font-weight: 700;
+}
+
+.asset-icon.xrp-icon {
+    background-color: transparent;
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/52.png');
+    background-size: 80%;
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.asset-icon.bnb-icon {
+    background-color: transparent;
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png');
+    background-size: 80%;
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.asset-icon.pepe-icon {
+    background-color: transparent;
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/24478.png');
+    background-size: 80%;
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.asset-icon.usdt-icon {
+    background-color: transparent;
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/825.png');
+    background-size: 80%;
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .asset-icon.link-icon {
@@ -520,7 +641,6 @@ button {
 .allocation-color.usdt {
     background-color: var(--color-usdt);
 }
-   
 
 .allocation-color.others {
     background-color: var(--color-bnb);
