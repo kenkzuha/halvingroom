@@ -22,6 +22,8 @@
     --color-sol: #00ffbd;
     --color-bnb: #f8a943;
     --color-xrp: #2d3748;
+    --color-pepe: #509624;
+    --color-usdt: #26A17B;
     --color-others: #718096;
     --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 8px 15px rgba(0, 0, 0, 0.2);
@@ -452,11 +454,13 @@ button {
     margin: 0 auto;
     position: relative;
     background: conic-gradient(
-        var(--color-btc) 0% 62.4%,
-        var(--color-eth) 62.4% 86.7%,
-        var(--color-sol) 86.7% 95.4%,
-        var(--color-others) 95.4% 100%
-    );
+        var(--color-btc) 0% 30%,      /* BTC: 0% to 30% */
+        var(--color-eth) 30% 50%,     /* ETH: 30% to 50% */
+        var(--color-sol) 50% 70%,     /* SOL: 50% to 70% */
+        var(--color-pepe) 70% 85%,    /* PEPE: 70% to 85% */
+        var(--color-usdt) 85% 100%,    /* USDT: 85% to 100% */
+        var(--color-others 100% 100%   /* OTHERS: 100% */
+    ))
 }
 
 .donut-placeholder::after {
@@ -508,6 +512,15 @@ button {
 .allocation-color.xrp {
     background-color: var(--color-xrp);
 }
+
+.allocation-color.pepe {
+    background-color: var(--color-pepe);
+}
+
+.allocation-color.usdt {
+    background-color: var(--color-usdt);
+}
+   
 
 .allocation-color.others {
     background-color: var(--color-bnb);

@@ -395,8 +395,14 @@ function initializeAssetAllocationChart() {
                 else if (colorElement?.classList.contains('bnb')) color = '#f3ba2f';
                 else if (colorElement?.classList.contains('xrp')) color = '#346aa9';
                 else if (colorElement?.classList.contains('pepe')) color = '#509624';
+                else if (colorElement?.classList.contains('usdt')) color = '#26A17B';
 
                 backgroundColors.push(color);
+                console.log('Assigned color:', color);
+                console.log('Labels:', labels);
+                console.log('Data:', data);
+                console.log('Background Colors:', backgroundColors);
+   
             }
         });
 
