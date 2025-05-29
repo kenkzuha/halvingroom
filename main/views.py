@@ -89,7 +89,6 @@ def update_asset_price(asset):
             price_data = response.json()
             price = Decimal(price_data['price'])
             
-            # Update asset with new price and value
             asset.price = price
             asset.value = asset.holdings * price
             asset.save()
@@ -148,7 +147,8 @@ def add_asset(request):
                     'ETH': Decimal('2500'),
                     'SOL': Decimal('170'),
                     'BNB': Decimal('650'),
-                    'XRP': Decimal('2.35')
+                    'XRP': Decimal('2.35'),
+                    'PEPE': Decimal('0.00001444')
                 }
                 price = fallback_prices.get(symbol, Decimal('0'))
                 messages.warning(request, f'Could not fetch live price for {symbol}. Using fallback price.')

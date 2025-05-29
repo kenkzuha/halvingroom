@@ -394,6 +394,7 @@ function initializeAssetAllocationChart() {
                 else if (colorElement?.classList.contains('sol')) color = '#00ffbd';
                 else if (colorElement?.classList.contains('bnb')) color = '#f3ba2f';
                 else if (colorElement?.classList.contains('xrp')) color = '#346aa9';
+                else if (colorElement?.classList.contains('pepe')) color = '#509624';
 
                 backgroundColors.push(color);
             }
@@ -500,28 +501,77 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
-//bagian ini --> yang persentase (+2% (24$)) bagian portofolio summary
+// Enhanced Portfolio Summary Change Display
 document.addEventListener("DOMContentLoaded", () => {
     const totalValueEl = document.getElementById("totalValue");
-    const changeEl = document.getElementById("changeElement");
+    const changeEl = document.getElementById("changeDisplay");
 
-    const currentValue = parseFloat(totalValueEl.textContent.replace(/[^0-9.]/g, ""));
-    const previousValue = parseFloat(totalValueEl.dataset.previous);
+    // Validation checks
+    if (!totalValueEl || !changeEl) {
+        console.error("Required elements not found");
+        return;
+    }
 
+    // Extract current value from text content
+    const currentValueText = totalValueEl.textContent || totalValueEl.innerText || "";
+    const currentValue = parseFloat(currentValueText.replace(/[^0-9.-]/g, ""));
+    
+    // Get previous value from data attribute or localStorage as fallback
+    const previousValueText = totalValueEl.dataset.previous || localStorage.getItem('previousPortfolioValue') || currentValue.toString();
+    const previousValue = parseFloat(previousValueText);
+
+    // Store current value for next time (if using localStorage fallback)
+    if (!totalValueEl.dataset.previous) {
+        localStorage.setItem('previousPortfolioValue', currentValue.toString());
+    }
+
+    // Validation for numeric values
+    if (isNaN(currentValue) || isNaN(previousValue)) {
+        console.error("Invalid numeric values:", { currentValue, previousValue });
+        changeEl.innerHTML = '<span style="color: #6c757d;">N/A</span>';
+        return;
+    }
+
+    // Calculate difference and percentage
     const difference = currentValue - previousValue;
-    const percentage = previousValue > 0 ? (difference / previousValue) * 100 : 0;
-    const isGain = difference >= 0;
+    const percentage = previousValue !== 0 ? (difference / previousValue) * 100 : 0;
+    const isGain = difference > 0;
+    const isLoss = difference < 0;
+    const isNeutral = difference === 0;
 
-    const arrow = isGain
-        ? '<i class="fas fa-caret-up"></i>'
-        : '<i class="fas fa-caret-down"></i>';
+    // Determine colors and icons
+    let textColor, arrow;
+    
+    if (isNeutral) {
+        textColor = "#6c757d"; // Gray for neutral
+        arrow = '<i class="fas fa-minus"></i>';
+    } else if (isGain) {
+        textColor = "#28a745"; // Green for gains
+        arrow = '<i class="fas fa-caret-up"></i>';
+    } else if (isLoss) {
+        textColor = "#dc3545"; // Red for losses
+        arrow = '<i class="fas fa-caret-down"></i>';
+    }
 
-    const textColor = isGain ? "#28a745" : "#dc3545";
-
+    // Format the display
+    const formattedPercentage = Math.abs(percentage).toFixed(2);
+    const formattedDifference = Math.abs(difference).toFixed(2);
+    
+    // Update the change element
     changeEl.innerHTML = `
-        ${arrow} ${Math.abs(percentage).toFixed(2)}%
-        (<span style="color:${textColor}">$${Math.abs(difference).toFixed(2)}</span>)
+        ${arrow} ${formattedPercentage}%
+        (<span style="color:${textColor}">$${formattedDifference}</span>)
     `;
     changeEl.style.color = textColor;
+
+    // Optional: Add animation class for visual feedback
+    changeEl.classList.add('portfolio-change-updated');
+    
+    // Log for debugging (remove in production)
+    console.log('Portfolio Change Updated:', {
+        currentValue,
+        previousValue,
+        difference,
+        percentage: `${formattedPercentage}%`
+    });
 });

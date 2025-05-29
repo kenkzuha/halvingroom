@@ -21,7 +21,7 @@
             </div>
             <ul class="nav-links">
                 <li class="nav-item active">
-                    <a href="#portfolio">
+                    <a href="/">
                         <i class="fas fa-chart-pie"></i>
                         <span>Portfolio</span>
                     </a>
@@ -55,9 +55,13 @@
                 <div class="sidebar-user-section">
                     <div class="sidebar-user-container">
                         <div class="sidebar-username">
-                            <div class="hello-section"><i class="fas fa-user"></i> Hello, {{ user.username }}!</div>
+                            <div class="hello-section">
+                                <i class="fas fa-user"></i> Hello, {{ user.username }}!
+                            </div>
                             <div class="logout-section">
-                                <a href="logout" class="sidebar-logout">Logout <i class="fa-solid fa-right-from-bracket fa-sm"></i></a>
+                                <a href="logout" class="sidebar-logout">
+                                    Logout <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -107,10 +111,10 @@
                         <div class="card-content">
                             <div class="portfolio-value">
                                 <h2 id="totalValue">${{ total_value|floatformat:2 }}</h2>
-                                <div class="portfolio-change positive">
-                                    <button class="btn-overallprofit" id="changeElement">
-                                        <h2 id="totalValue" data-previous="{{ previous_value|floatformat:2 }}">${{ total_value|floatformat:2 }}</h2>
-                                    </button>
+                                <div class="portfolio-change" id="portfolioChange">
+                                    <span id="changeDisplay">
+                                        <!-- This will be populated by JavaScript -->
+                                    </span>
                                 </div>
                             </div>
                             <div class="chart-container">
@@ -156,14 +160,21 @@
                                             </td>
                                             <td class="price-cell">${{ asset.price|floatformat:2 }}</td>
                                             <td class="change positive">0.00%</td>
-                                            <td class="holdings-cell">{{ asset.holdings|floatformat:8 }} {{ asset.symbol }}</td>
+                                            <td class="holdings-cell">
+                                                {{ asset.holdings|floatformat:8 }} {{ asset.symbol }}
+                                            </td>
                                             <td class="value-cell">${{ asset.value|floatformat:2 }}</td>
                                             <td class="action-cell">
-                                                <button class="action-btn edit-btn" data-id="{{ asset.id }}" data-symbol="{{ asset.symbol }}" data-holdings="{{ asset.holdings }}">
+                                                <button class="action-btn edit-btn" 
+                                                        data-id="{{ asset.id }}" 
+                                                        data-symbol="{{ asset.symbol }}" 
+                                                        data-holdings="{{ asset.holdings }}">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                                 |
-                                                <button class="action-btn delete-btn" data-id="{{ asset.id }}" data-symbol="{{ asset.symbol }}">
+                                                <button class="action-btn delete-btn" 
+                                                        data-id="{{ asset.id }}" 
+                                                        data-symbol="{{ asset.symbol }}">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>
                                             </td>
@@ -178,38 +189,38 @@
                         </div>
                     </div>
 
-                    
-<!-- Asset Allocation Card -->
-<div class="card allocation-card">
-    <div class="card-header">
-        <h3>Asset Allocation</h3>
-    </div>
-    <div class="card-content allocation-content">
-        <div class="allocation-chart">
-            <canvas id="assetAllocationChart"></canvas>
-                <div class="empty-circle" id="noAssetOverlay">
-                    
-                </div>
-        </div>
-        <div class="allocation-list" id="allocationList">
-            {% for asset_percent in asset_percentages %}
-            <div class="allocation-item">
-                <div class="allocation-color {{ asset_percent.symbol|lower }}"></div>
-                <div style="display: flex; align-items: center;">
-                    <span class="allocation-name">{{ asset_percent.symbol }}</span>
-                    <span>&nbsp;</span>
-                    <span class="allocation-percentage">{{ asset_percent.percentage|floatformat:1 }}%</span>
-                </div>
-            </div>
-            {% empty %}
-            <div class="allocation-item">
-                <div class="allocation-name">No assets added yet</div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+                    <!-- Asset Allocation Card -->
+                    <div class="card allocation-card">
+                        <div class="card-header">
+                            <h3>Asset Allocation</h3>
+                        </div>
+                        <div class="card-content allocation-content">
+                            <div class="allocation-chart">
+                                <canvas id="assetAllocationChart"></canvas>
+                                <div class="empty-circle" id="noAssetOverlay"></div>
+                            </div>
+                            <div class="allocation-list" id="allocationList">
+                                {% for asset_percent in asset_percentages %}
+                                    <div class="allocation-item">
+                                        <div class="allocation-color {{ asset_percent.symbol|lower }}"></div>
+                                        <div style="display: flex; align-items: center;">
+                                            <span class="allocation-name">{{ asset_percent.symbol }}</span>
+                                            <span>&nbsp;</span>
+                                            <span class="allocation-percentage">
+                                                {{ asset_percent.percentage|floatformat:1 }}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="allocation-item">
+                                        <div class="allocation-name">No assets added yet</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Recent Activity Card -->
                     <div class="card allocation-card">
                         <div class="card-header">
                             <h3>Recent Activity</h3>
@@ -218,16 +229,16 @@
                             <div class="recent-activity-list" id="recentActivityList">
                                 {% if recent_activities %}
                                     {% for activity in recent_activities %}
-                                    <div class="activity-item">
-                                        <div class="activity-icon {{ activity.symbol|lower }}-icon">
-                                            <i class="fab fa-{{ activity.symbol|lower }}"></i>
+                                        <div class="activity-item">
+                                            <div class="activity-icon {{ activity.symbol|lower }}-icon">
+                                                <i class="fab fa-{{ activity.symbol|lower }}"></i>
+                                            </div>
+                                            <div class="activity-details">
+                                                <div class="activity-title">${actionText}</div>
+                                                <div class="activity-value">Value: $${parseFloat(value).toFixed(2)}</div>
+                                                <div class="activity-time">${time}</div>
+                                            </div>
                                         </div>
-                                        <div class="activity-details">
-                                             <div class="activity-title">${actionText}</div>
-                                            <div class="activity-value">Value: $${parseFloat(value).toFixed(2)}</div>
-                                            <div class="activity-time">${time}</div>
-                                        </div>
-                                    </div>
                                     {% endfor %}
                                 {% else %}
                                     <div class="no-activity">
@@ -248,88 +259,86 @@
                     <p class="auth-footer">
                         Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
                     </p>
-                    </div>
                 </div>
             {% endif %}
         </main>
     </div>
 
-<!-- Add Asset Modal -->
-<div id="addAssetModal" class="modal">
-    <div class="modal-content" style="width: 300px; height: 280px;">
-        <span class="close" id="closeModal">&times;</span>
-        <h2>Add Asset</h2>
-        <form id="addAssetForm" method="POST" action="{% url 'add_asset' %}">
-            {% csrf_token %}
-            <div class="input-group">
-                <label for="symbol">Symbol</label>
-                <select id="symbol" name="symbol" required>
-                    <option value="BTC">BTC (Bitcoin)</option>
-                    <option value="ETH">ETH (Ethereum)</option>
-                    <option value="SOL">SOL (Solana)</option>
-                    <option value="BNB">BNB (Binance)</option>
-                    <option value="XRP">XRP (XRP)</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label for="holdings">Holdings</label>
-                <input autocomplete="off" type="text" inputmode="numeric" id="holdings" name="holdings" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Add Asset</button>
-        </form>
+    <!-- Add Asset Modal -->
+    <div id="addAssetModal" class="modal">
+        <div class="modal-content" style="width: 300px; height: 280px;">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Add Asset</h2>
+            <form id="addAssetForm" method="POST" action="{% url 'add_asset' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="symbol">Symbol</label>
+                    <select id="symbol" name="symbol" required>
+                        <option value="BTC">BTC (Bitcoin)</option>
+                        <option value="ETH">ETH (Ethereum)</option>
+                        <option value="SOL">SOL (Solana)</option>
+                        <option value="BNB">BNB (Binance)</option>
+                        <option value="XRP">XRP (XRP)</option>
+                        <option value="PEPE">PEPE (PEPE)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="holdings">Holdings</label>
+                    <input autocomplete="off" type="text" inputmode="numeric" id="holdings" name="holdings" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Asset</button>
+            </form>
+        </div>
     </div>
-</div>
 
-
-
-<!-- Edit Asset Modal -->
-<div id="editAssetModal" class="modal">
-    <div class="modal-content" style="width: 300px; height: 280px;">
-        <span class="close" id="closeEditModal">&times;</span>
-        <h2>Edit Asset</h2>
-        <form id="editAssetForm" method="POST" action="{% url 'edit_asset' %}">
-            {% csrf_token %}
-            <input type="hidden" id="edit_asset_id" name="asset_id">
-            <div class="input-group">
-                <label for="edit_symbol">Symbol</label>
-                <input type="text" id="edit_symbol" name="symbol" readonly>
-            </div>
-            <div class="input-group">
-                <label for="edit_holdings">Holdings</label>
-                <input autocomplete="off" type="text" inputmode="numeric" id="edit_holdings" name="holdings" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Update Asset</button>
-        </form>
+    <!-- Edit Asset Modal -->
+    <div id="editAssetModal" class="modal">
+        <div class="modal-content" style="width: 300px; height: 280px;">
+            <span class="close" id="closeEditModal">&times;</span>
+            <h2>Edit Asset</h2>
+            <form id="editAssetForm" method="POST" action="{% url 'edit_asset' %}">
+                {% csrf_token %}
+                <input type="hidden" id="edit_asset_id" name="asset_id">
+                <div class="input-group">
+                    <label for="edit_symbol">Symbol</label>
+                    <input type="text" id="edit_symbol" name="symbol" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="edit_holdings">Holdings</label>
+                    <input autocomplete="off" type="text" inputmode="numeric" id="edit_holdings" name="holdings" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Asset</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- Delete Asset Modal -->
-<div id="deleteAssetModal" class="modal">
-    <div class="modal-content" style="width: 300px; height: 190px;">
-        <span class="close" id="closeDeleteModal">&times;</span>
-        <h2>Delete Asset</h2>
-        <div class="modal-body">
-            <p>Are you sure you want to delete <span id="delete_asset_symbol"></span> from your portfolio?</p>
-            <div class="delete-confirmation">
-                <form id="deleteAssetForm" method="POST" action="{% url 'delete_asset' %}">
-                    {% csrf_token %}
-                    <input type="hidden" id="delete_asset_id" name="asset_id">
-                    <div class="modal-actions">
-                        <button type="button" class="btn btn-secondary" id="cancelDelete">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </div>
-                </form>
+    <!-- Delete Asset Modal -->
+    <div id="deleteAssetModal" class="modal">
+        <div class="modal-content" style="width: 300px; height: 190px;">
+            <span class="close" id="closeDeleteModal">&times;</span>
+            <h2>Delete Asset</h2>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <span id="delete_asset_symbol"></span> from your portfolio?</p>
+                <div class="delete-confirmation">
+                    <form id="deleteAssetForm" method="POST" action="{% url 'delete_asset' %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="delete_asset_id" name="asset_id">
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Overall profit Popup Modal -->
-<div id="Overallprofit" class="modal">
-    <div class="modal-content" style="width: 300px; height: 200px;">
-        <span class="close" id="closeOverallProfit">&times;</span>
-        <h2>Overall Profit</h2>
+    <!-- Overall profit Popup Modal -->
+    <div id="Overallprofit" class="modal">
+        <div class="modal-content" style="width: 300px; height: 200px;">
+            <span class="close" id="closeOverallProfit">&times;</span>
+            <h2>Overall Profit</h2>
+        </div>
     </div>
-</div>
 </body>
 </html>
