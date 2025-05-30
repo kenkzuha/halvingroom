@@ -33,6 +33,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'halvingroom',
     'admin.halvingroom',
+    '127.0.0.1',
 ]
 
 

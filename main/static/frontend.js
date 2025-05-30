@@ -189,7 +189,7 @@ function setupAutoRefresh() {
 }
 
 /**
- * Initialize time period buttons for portfolio chart
+ * Updated time period buttons handler
  */
 function initializeTimeButtons() {
     const timeButtons = document.querySelectorAll('.time-button');
@@ -207,29 +207,69 @@ function initializeTimeButtons() {
             // Get the time period
             const period = this.getAttribute('data-period');
             
+            let newLabels, newData, yAxisMin, yAxisMax;
+            
             // Update chart based on selected period
-            let days = 30;
             switch(period) {
-                case '24h': days = 1; break;
-                case '7d': days = 7; break;
-                case '30d': days = 30; break;
-                case '90d': days = 90; break;
-                case '1y': days = 365; break;
-                case 'all': days = window.portfolioData.length; break;
+                case '24h':
+                    newLabels = window.timeLabels; // Use time labels
+                    newData = window.hourlyData; // Use hourly data
+                    yAxisMin = Math.min(...window.hourlyData) * 0.98;
+                    yAxisMax = Math.max(...window.hourlyData) * 1.02;
+                    break;
+                case '7d':
+                    newLabels = window.dates.slice(-7);
+                    newData = window.portfolioData.slice(-7);
+                    yAxisMin = Math.min(...window.portfolioData.slice(-7)) * 0.98;
+                    yAxisMax = Math.max(...window.portfolioData.slice(-7)) * 1.02;
+                    break;
+                case '30d':
+                    newLabels = window.dates.slice(-30);
+                    newData = window.portfolioData.slice(-30);
+                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
+                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
+                    break;
+                case '90d':
+                    // For 90d, we'll extend the data array
+                    newLabels = window.dates.slice(-30); // Use available data
+                    newData = window.portfolioData.slice(-30);
+                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
+                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
+                    break;
+                case '1y':
+                    newLabels = window.dates.slice(-30); // Use available data
+                    newData = window.portfolioData.slice(-30);
+                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
+                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
+                    break;
+                case 'all':
+                    newLabels = window.dates;
+                    newData = window.portfolioData;
+                    yAxisMin = Math.min(...window.portfolioData) * 0.98;
+                    yAxisMax = Math.max(...window.portfolioData) * 1.02;
+                    break;
+                default:
+                    newLabels = window.dates.slice(-30);
+                    newData = window.portfolioData.slice(-30);
+                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
+                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
             }
             
-            const newLabels = window.dates.slice(-days);
-            const newData = window.portfolioData.slice(-days);
-            
+            // Update chart data
             window.portfolioChart.data.labels = newLabels;
             window.portfolioChart.data.datasets[0].data = newData;
+            
+            // Update Y-axis range
+            window.portfolioChart.options.scales.y.min = yAxisMin;
+            window.portfolioChart.options.scales.y.max = yAxisMax;
+            
+            // Update the chart
             window.portfolioChart.update();
         });
     });
 }
-
 /**
- * Initialize portfolio chart
+ * Initialize portfolio chart with time-based labels for 24h period
  */
 function initializePortfolioChart() {
     const portfolioChartElement = document.getElementById('portfolioChart');
@@ -237,13 +277,28 @@ function initializePortfolioChart() {
     
     const ctx = portfolioChartElement.getContext('2d');
     
-    // Generate dates
+    // Generate different date/time arrays for different periods
     window.dates = [];
+    window.timeLabels = []; // New array for 24h time labels
+    
+    // Generate regular dates (for 7d, 30d, etc.)
     const now = new Date();
     for (let i = 29; i >= 0; i--) {
         const date = new Date();
         date.setDate(now.getDate() - i);
         window.dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+    
+    // Generate 24-hour time labels (every hour for last 24 hours)
+    for (let i = 23; i >= 0; i--) {
+        const timePoint = new Date();
+        timePoint.setHours(timePoint.getHours() - i);
+        const timeString = timePoint.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false // Use 24-hour format, change to true for 12-hour format
+        });
+        window.timeLabels.push(timeString);
     }
     
     // Extract current portfolio value
@@ -255,8 +310,8 @@ function initializePortfolioChart() {
         currentPortfolioValue = parseFloat(valueText.replace(/[^0-9.-]+/g, '')) || 0;
     }
     
-    // Generate data with rounding
-    let baseValue = currentPortfolioValue * 0.8; // Start at 80% of current value
+    // Generate data for 30 days (regular periods)
+    let baseValue = currentPortfolioValue * 0.8;
     window.portfolioData = [];
     for (let i = 0; i < 30; i++) {
         const dailyChange = baseValue * (Math.random() * 0.027 - 0.012);
@@ -265,19 +320,30 @@ function initializePortfolioChart() {
     }
     window.portfolioData[window.portfolioData.length - 1] = Math.round(currentPortfolioValue);
     
+    // Generate data for 24 hours (hourly data)
+    let hourlyBaseValue = currentPortfolioValue * 0.95;
+    window.hourlyData = [];
+    for (let i = 0; i < 24; i++) {
+        const hourlyChange = hourlyBaseValue * (Math.random() * 0.008 - 0.004); // Smaller hourly changes
+        hourlyBaseValue += hourlyChange;
+        window.hourlyData.push(Math.round(hourlyBaseValue));
+    }
+    window.hourlyData[window.hourlyData.length - 1] = Math.round(currentPortfolioValue);
+    
     // Gradient fill
     const gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
     gradientFill.addColorStop(0, 'rgba(247, 147, 26, 0.6)');
     gradientFill.addColorStop(0.8, 'rgba(247, 147, 26, 0.1)');
     gradientFill.addColorStop(1, 'rgba(247, 147, 26, 0)');
     
+    // Initialize with 24h data (time labels)
     window.portfolioChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: window.dates,
+            labels: window.timeLabels, // Start with time labels for 24h view
             datasets: [{
                 label: 'Portfolio Value',
-                data: window.portfolioData,
+                data: window.hourlyData, // Start with hourly data
                 borderColor: '#f7931a',
                 backgroundColor: gradientFill,
                 borderWidth: 2,
@@ -334,8 +400,8 @@ function initializePortfolioChart() {
                         },
                         maxTicksLimit: 5
                     },
-                    min: Math.min(...window.portfolioData) * 0.98,
-                    max: Math.max(...window.portfolioData) * 1.02
+                    min: Math.min(...window.hourlyData) * 0.98,
+                    max: Math.max(...window.hourlyData) * 1.02
                 }
             },
             interaction: { intersect: false, mode: 'index' },
@@ -343,9 +409,8 @@ function initializePortfolioChart() {
         }
     });
 }
-
 /**
- * Initialize asset allocation chart
+ * Initialize asset allocation chart with sorted data
  */
 function initializeAssetAllocationChart() {
     const canvas = document.getElementById('assetAllocationChart');
@@ -356,12 +421,37 @@ function initializeAssetAllocationChart() {
 
     // Check if there are valid assets
     let hasAssets = false;
+    let assetData = [];
+    
     allocationItems.forEach(item => {
         const nameElement = item.querySelector('.allocation-name');
-        if (nameElement && !nameElement.textContent.toLowerCase().includes('no assets')) {
+        const percentElement = item.querySelector('.allocation-percentage');
+        const colorElement = item.querySelector('.allocation-color');
+
+        if (nameElement && percentElement && !nameElement.textContent.toLowerCase().includes('no assets')) {
             hasAssets = true;
+            const symbol = nameElement.textContent.trim();
+            const percentage = parseFloat(percentElement.textContent);
+            
+            let color = '#181e26'; // default color
+            if (colorElement?.classList.contains('btc')) color = '#f7931a';
+            else if (colorElement?.classList.contains('eth')) color = '#627eea';
+            else if (colorElement?.classList.contains('sol')) color = '#00ffbd';
+            else if (colorElement?.classList.contains('bnb')) color = '#f3ba2f';
+            else if (colorElement?.classList.contains('xrp')) color = '#346aa9';
+            else if (colorElement?.classList.contains('pepe')) color = '#069420';
+            else if (colorElement?.classList.contains('usdt')) color = '#26a17b';
+
+            assetData.push({
+                symbol: symbol,
+                percentage: percentage,
+                color: color
+            });
         }
     });
+
+    // Sort by percentage (highest to lowest)
+    assetData.sort((a, b) => b.percentage - a.percentage);
     
     const noAssetOverlay = document.getElementById('noAssetOverlay');
     if (noAssetOverlay) {
@@ -373,38 +463,12 @@ function initializeAssetAllocationChart() {
     }
 
     if (hasAssets) {
-        const labels = [];
-        const data = [];
-        const backgroundColors = [];
+        const labels = assetData.map(item => item.symbol);
+        const data = assetData.map(item => item.percentage);
+        const backgroundColors = assetData.map(item => item.color);
 
-        allocationItems.forEach(item => {
-            const nameElement = item.querySelector('.allocation-name');
-            const percentElement = item.querySelector('.allocation-percentage');
-            const colorElement = item.querySelector('.allocation-color');
-
-            if (nameElement && percentElement && !nameElement.textContent.toLowerCase().includes('no assets')) {
-                const symbol = nameElement.textContent.trim();
-                const percentage = parseFloat(percentElement.textContent);
-                labels.push(symbol);
-                data.push(percentage);
-
-                let color = '#181e26'; // default color
-                if (colorElement?.classList.contains('btc')) color = '#f7931a';
-                else if (colorElement?.classList.contains('eth')) color = '#627eea';
-                else if (colorElement?.classList.contains('sol')) color = '#00ffbd';
-                else if (colorElement?.classList.contains('bnb')) color = '#f3ba2f';
-                else if (colorElement?.classList.contains('xrp')) color = '#346aa9';
-                else if (colorElement?.classList.contains('pepe')) color = '#069420';
-                else if (colorElement?.classList.contains('usdt')) color = '#26a17b';
-
-                backgroundColors.push(color);
-                console.log('Assigned color:', color);
-                console.log('Labels:', labels);
-                console.log('Data:', data);
-                console.log('Background Colors:', backgroundColors);
-   
-            }
-        });
+        // Also update the allocation list to match the sorted order
+        updateAllocationList(assetData);
 
         new Chart(ctx, {
             type: 'doughnut',
@@ -426,7 +490,6 @@ function initializeAssetAllocationChart() {
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                // This is the critical change to add a space
                                 return context.label + " " + context.raw.toFixed(1) + "%";
                             }
                         }
@@ -435,6 +498,7 @@ function initializeAssetAllocationChart() {
             }
         });
     } else {
+        // ... existing no data handling code
         const noDataPlugin = {
             id: 'noDataText',
             afterDraw(chart) {
