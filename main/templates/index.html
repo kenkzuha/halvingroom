@@ -157,8 +157,9 @@
                                             </td>
                                             <td class="price-cell">${{ asset.price|floatformat:2 }}</td>
                                             <td class="change positive">0.00%</td>
+                                            {% load custom_filters %}
                                             <td class="holdings-cell">
-                                                {{ asset.holdings|floatformat:8 }} {{ asset.symbol }}
+                                                {{ asset.holdings|smart_float }} {{ asset.symbol }}
                                             </td>
                                             <td class="value-cell">${{ asset.value|floatformat:2 }}</td>
                                             <td class="action-cell">

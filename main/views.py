@@ -6,14 +6,13 @@ from .models import UserAsset
 from decimal import Decimal
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-
 
 def get_price_change_percent(symbol):
     url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={symbol}"
     response = requests.get(url)
     data = response.json()
     return float(data['priceChangePercent'])
+
 def index(request):
     user_assets = []
     total_value = Decimal('0.00')
@@ -42,6 +41,9 @@ def index(request):
                     'symbol': asset.symbol,
                     'percentage': percentage
                 })
+            
+            # Sort asset percentages from big to small
+            asset_percentages.sort(key=lambda x: x['percentage'], reverse=True)
     
     return render(request, 'index.html', {
         'user_assets': user_assets,

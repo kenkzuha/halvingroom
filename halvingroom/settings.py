@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-62n@980k5$&a&81^-ah7=v^3#2j)yiep8cd2@sx^t_9ar!i_9v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'halvingroom',
+    'admin.halvingroom',
+]
 
 
 # Application definition
@@ -75,10 +78,15 @@ WSGI_APPLICATION = 'halvingroom.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'halvingroom',
+        'USER': 'postgres', 
+        'PASSWORD': 'kenbila1327',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
