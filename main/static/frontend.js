@@ -409,17 +409,31 @@ function initializePortfolioChart() {
         }
     });
 }
+
 /**
  * Initialize asset allocation chart with sorted data
  */
 function initializeAssetAllocationChart() {
     const canvas = document.getElementById('assetAllocationChart');
-    if (!canvas) return;
-    
+    if (!canvas) {
+        console.error('Allocation chart canvas not found');
+        return;
+    }
+
+    // Safely destroy previous chart if it exists
+    if (window.assetAllocationChart && typeof window.assetAllocationChart.destroy === 'function') {
+        try {
+            window.assetAllocationChart.destroy();
+        } catch (e) {
+            console.warn('Error destroying previous chart:', e);
+        }
+    }
+
     const ctx = canvas.getContext('2d');
     const allocationItems = document.querySelectorAll('.allocation-item');
+    const noAssetOverlay = document.getElementById('noAssetOverlay');
 
-    // Check if there are valid assets
+    // Check if we have valid assets
     let hasAssets = false;
     let assetData = [];
     
@@ -428,19 +442,21 @@ function initializeAssetAllocationChart() {
         const percentElement = item.querySelector('.allocation-percentage');
         const colorElement = item.querySelector('.allocation-color');
 
-        if (nameElement && percentElement && !nameElement.textContent.toLowerCase().includes('no assets')) {
+        if (nameElement && percentElement && !nameElement.textContent.includes('No assets')) {
             hasAssets = true;
             const symbol = nameElement.textContent.trim();
             const percentage = parseFloat(percentElement.textContent);
             
-            let color = '#181e26'; // default color
-            if (colorElement?.classList.contains('btc')) color = '#f7931a';
-            else if (colorElement?.classList.contains('eth')) color = '#627eea';
-            else if (colorElement?.classList.contains('sol')) color = '#00ffbd';
-            else if (colorElement?.classList.contains('bnb')) color = '#f3ba2f';
-            else if (colorElement?.classList.contains('xrp')) color = '#346aa9';
-            else if (colorElement?.classList.contains('pepe')) color = '#069420';
-            else if (colorElement?.classList.contains('usdt')) color = '#26a17b';
+            // Get color from class
+            let color = '#f7931a'; // default BTC color
+            if (colorElement.classList.contains('btc')) color = '#f7931a';
+            else if (colorElement.classList.contains('eth')) color = '#627eea';
+            else if (colorElement.classList.contains('sol')) color = '#00ffbd';
+            else if (colorElement.classList.contains('bnb')) color = '#f3ba2f';
+            else if (colorElement.classList.contains('xrp')) color = '#346aa9';
+            else if (colorElement.classList.contains('pepe')) color = '#069420';
+            else if (colorElement.classList.contains('usdt')) color = '#26a17b';
+            else if (colorElement.classList.contains('sui')) color = '#006afd';
 
             assetData.push({
                 symbol: symbol,
@@ -450,91 +466,55 @@ function initializeAssetAllocationChart() {
         }
     });
 
-    // Sort by percentage (highest to lowest)
-    assetData.sort((a, b) => b.percentage - a.percentage);
-    
-    const noAssetOverlay = document.getElementById('noAssetOverlay');
+    // Toggle overlay
     if (noAssetOverlay) {
-        if (hasAssets) {
-            noAssetOverlay.style.display = 'none';
-        } else {
-            noAssetOverlay.style.display = 'flex';
-        }
+        noAssetOverlay.style.display = hasAssets ? 'none' : 'flex';
     }
 
     if (hasAssets) {
+        // Sort by percentage (highest to lowest)
+        assetData.sort((a, b) => b.percentage - a.percentage);
+        
         const labels = assetData.map(item => item.symbol);
         const data = assetData.map(item => item.percentage);
         const backgroundColors = assetData.map(item => item.color);
 
-        // Also update the allocation list to match the sorted order
-        updateAllocationList(assetData);
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: Array(data.length).fill('#181e26'),
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return context.label + " " + context.raw.toFixed(1) + "%";
+        try {
+            window.assetAllocationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#181e26',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw.toFixed(2)}%`;
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Error creating allocation chart:', e);
+        }
     } else {
-        // ... existing no data handling code
-        const noDataPlugin = {
-            id: 'noDataText',
-            afterDraw(chart) {
-                const { width, height } = chart;
-                const ctx = chart.ctx;
-                ctx.save();
-                ctx.clearRect(0, 0, width, height);
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#718096';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('No assets', width / 2, height / 2);
-                ctx.restore();
-            }
-        };
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: []
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
-                }
-            },
-            plugins: [noDataPlugin]
-        });
+        // Clear canvas if no assets
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 

@@ -21,6 +21,7 @@
     --color-eth: #627eea;
     --color-sol: #00ffbd;
     --color-bnb: #f8a943;
+    --color-sui: #006afd;
     --color-xrp: #2d3748;
     --color-pepe: #509624;
     --color-usdt: #26A17B;
@@ -399,10 +400,8 @@ button {
     color: #ffffff;
 }
 
-.asset-icon.btc-icon {
-    background-color: transparent;
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg');
-    background-size: 80%;
+.asset-icon.btc-icon { /* Changed class name to sui-icon */
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/1.png'); /* Updated URL for SUI */
     background-size: 80%;
     width: 40px;
     height: 40px;
@@ -415,8 +414,8 @@ button {
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 .asset-icon.eth-icon {
@@ -438,6 +437,24 @@ button {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
+}
+
+.asset-icon.sui-icon { /* Changed class name to sui-icon */
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/20947.png'); /* Updated URL for SUI */
+    background-size: 80%;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 .asset-icon.sol-icon {
@@ -579,7 +596,8 @@ button {
         var(--color-eth) 30% 50%,     /* ETH: 30% to 50% */
         var(--color-sol) 50% 70%,     /* SOL: 50% to 70% */
         var(--color-pepe) 70% 85%,    /* PEPE: 70% to 85% */
-        var(--color-usdt) 85% 100%,    /* USDT: 85% to 100% */
+        var(--color-usdt) 85% 100%,
+        var(--color-sui) 85% 100%    /* USDT: 85% to 100% */
         var(--color-others 100% 100%   /* OTHERS: 100% */
     ))
 }
@@ -642,9 +660,14 @@ button {
     background-color: var(--color-usdt);
 }
 
+.allocation-color.sui {
+    background-color: var(--color-sui);
+}
+
 .allocation-color.others {
     background-color: var(--color-bnb);
 }
+
 
 /* Transactions */
 .transaction-item {
@@ -1187,3 +1210,4 @@ select:focus {
 .colorturun{
     color:#dc3545;
 }
+

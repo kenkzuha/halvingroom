@@ -8,10 +8,9 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="{% static 'frontend.js' %}"></script>
 </head>
 <body>
+    {% load humanize %}
     <div class="container">
         <!-- Sidebar Navigation -->
         <nav class="sidebar">
@@ -155,7 +154,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="price-cell">${{ asset.price|floatformat:2 }}</td>
+                                            <td class="price-cell">${{ asset.price|floatformat:2|intcomma }}</td>
                                             <td class="change positive">0.00%</td>
                                             {% load custom_filters %}
                                             <td class="holdings-cell">
@@ -194,8 +193,10 @@
                         </div>
                         <div class="card-content allocation-content">
                             <div class="allocation-chart">
-                                <canvas id="assetAllocationChart"></canvas>
-                                <div class="empty-circle" id="noAssetOverlay"></div>
+                            <canvas id="assetAllocationChart"></canvas>
+                                <div class="empty-circle" id="noAssetOverlay">
+                                    <p>No assets</p>
+                                </div>
                             </div>
                             <div class="allocation-list" id="allocationList">
                                 {% for asset_percent in asset_percentages %}
@@ -279,6 +280,7 @@
                         <option value="XRP">XRP (XRP)</option>
                         <option value="PEPE">PEPE (PEPE)</option>
                         <option value="USDT">USDT (Tether)</option>
+                        <option value="SUI">SUI (SUI)</option>
                     </select>
                 </div>
                 <div class="input-group">
@@ -339,5 +341,7 @@
             <h2>Overall Profit</h2>
         </div>
     </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="{% static 'frontend.js' %}"></script>
 </body>
 </html>
