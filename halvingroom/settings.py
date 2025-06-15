@@ -31,9 +31,6 @@ SECRET_KEY = 'django-insecure-62n@980k5$&a&81^-ah7=v^3#2j)yiep8cd2@sx^t_9ar!i_9v
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'halvingroom',
-    'admin.halvingroom',
-    '127.0.0.1',
 ]
 
 
