@@ -163,7 +163,7 @@ function initializePriceRefresh() {
  * Set up automatic price refresh every 5 minutes
  */
 function setupAutoRefresh() {
-    const AUTO_REFRESH_INTERVAL = 300000;
+    const AUTO_REFRESH_INTERVAL = 30000;
     
     setInterval(() => {
         if (document.getElementById("refreshButton")) {
@@ -596,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
         textColor = "#6c757d"; // Gray for neutral
         arrow = '<i class="fas fa-minus"></i>';
     } else if (isGain) {
-        textColor = "#28a745"; // Green for gains
+        textColor = "#28a745"; // Green for gains   
         arrow = '<i class="fas fa-caret-up"></i>';
     } else if (isLoss) {
         textColor = "#dc3545"; // Red for losses

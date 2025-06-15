@@ -4,8 +4,8 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from .models import UserAsset
 from decimal import Decimal
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse, HttpResponse # Make sure HttpResponse is imported
 
 def get_price_change_percent(symbol):
     url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={symbol}"
@@ -21,11 +21,14 @@ def index(request):
     if request.user.is_authenticated:
         user_assets = UserAsset.objects.filter(user=request.user)
         
+        # This part handles a manual refresh via a GET parameter (e.g., ?refresh_prices=true)
+        # It's kept here as it's part of your existing logic.
         if request.GET.get('refresh_prices') == 'true':
             for asset in user_assets:
                 update_asset_price(asset)
             
-            user_assets = UserAsset.objects.filter(user=request.user)
+            user_assets = UserAsset.objects.filter(user=request.user) # Re-fetch updated assets
+            
         user_assets = sorted(user_assets, key=lambda asset: asset.value, reverse=True)
         total_value = sum(asset.value for asset in user_assets)
         
@@ -39,11 +42,18 @@ def index(request):
             
             asset_percentages.sort(key=lambda x: x['percentage'], reverse=True)
     
-    return render(request, 'index.html', {
+    # Create the HttpResponse object by rendering your template
+    response = render(request, 'index.html', { # 'index.html' confirmed as your template name
         'user_assets': user_assets,
         'total_value': total_value,
         'asset_percentages': asset_percentages
     })
+    
+    # Add the Refresh header to trigger a full page reload every 5 minutes (300 seconds)
+    # You can change '300' to any other interval in seconds.
+    response['Refresh'] = '30' 
+
+    return response
 
 def edit_asset(request):
     if request.method == "POST" and request.user.is_authenticated:
@@ -197,4 +207,4 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect('/')
+    return redirect('/')    

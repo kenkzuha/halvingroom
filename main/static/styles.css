@@ -87,21 +87,6 @@ button {
     margin-bottom: 30px;
 }
 
-.logo {
-    width: 40px;
-    height: 40px;
-    background-color: transparent;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
 .logo-text {
     font-size: 1.4rem;
     font-weight: 700;
