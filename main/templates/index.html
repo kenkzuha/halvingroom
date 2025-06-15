@@ -145,20 +145,17 @@
                                         <tr data-symbol="{{ asset.symbol }}">
                                             <td>
                                                 <div class="asset-info">
-                                                    <div class="asset-icon {{ asset.symbol|lower }}-icon">
-                                                    </div>
+                                                    <div class="asset-icon {{ asset.symbol|lower }}-icon"></div>
                                                     <div class="asset-name">
                                                         <h4>{{ asset.symbol }}</h4>
                                                         <span>{{ asset.symbol }}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="price-cell">${{ asset.price|floatformat:2|intcomma }}</td>
-                                            <td class="change positive">0.00%</td>
                                             {% load custom_filters %}
-                                            <td class="holdings-cell">
-                                                {{ asset.holdings|smart_float }} {{ asset.symbol }}
-                                            </td>
+                                            <td class="price-cell">${{ asset.price|format_crypto_price }}</td>
+                                            <td class="change positive">0.00%</td>
+                                            <td class="holdings-cell">{{ asset.holdings|format_crypto_price }} {{ asset.symbol }}</td>
                                             <td class="value-cell">${{ asset.value|floatformat:2 }}</td>
                                             <td class="action-cell">
                                                 <button class="action-btn edit-btn" 
@@ -167,7 +164,6 @@
                                                         data-holdings="{{ asset.holdings }}">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
-                                                |
                                                 <button class="action-btn delete-btn" 
                                                         data-id="{{ asset.id }}" 
                                                         data-symbol="{{ asset.symbol }}">
@@ -217,7 +213,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Recent Activity Card -->
                     <div class="card allocation-card">
                         <div class="card-header">
@@ -228,13 +223,25 @@
                                 {% if recent_activities %}
                                     {% for activity in recent_activities %}
                                         <div class="activity-item">
-                                            <div class="activity-icon {{ activity.symbol|lower }}-icon">
-                                                <i class="fab fa-{{ activity.symbol|lower }}"></i>
+                                            <div class="activity-icon">
+                                                {% if activity.action == 'add' %}
+                                                    <i class="fas fa-plus-circle text-success"></i>
+                                                {% elif activity.action == 'edit' %}
+                                                    <i class="fas fa-edit text-warning"></i>
+                                                {% else %}
+                                                    <i class="fas fa-trash-alt text-danger"></i>
+                                                {% endif %}
                                             </div>
                                             <div class="activity-details">
-                                                <div class="activity-title">${actionText}</div>
-                                                <div class="activity-value">Value: $${parseFloat(value).toFixed(2)}</div>
-                                                <div class="activity-time">${time}</div>
+                                                <div class="activity-title">
+                                                    {{ activity.get_action_display }} {{ activity.quantity|floatformat:-8 }} {{ activity.symbol }}
+                                                </div>
+                                                <div class="activity-value">
+                                                    ${{ activity.value|floatformat:2 }}
+                                                </div>
+                                                <div class="activity-time">
+                                                    {{ activity.timestamp|timesince }} ago
+                                                </div>
                                             </div>
                                         </div>
                                     {% endfor %}
