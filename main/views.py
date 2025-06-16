@@ -85,7 +85,8 @@ def add_asset(request):
                     'XRP': Decimal('2.35'),
                     'PEPE': Decimal('0.00001444'),
                     'USDT': Decimal('1'),
-                    'SUI': Decimal('3')
+                    'SUI': Decimal('3'),
+                    
                 }
                 price = fallback_prices.get(symbol, Decimal('0'))
                 messages.warning(request, f'Could not fetch live price for {symbol}. Using fallback price.')

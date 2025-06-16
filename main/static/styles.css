@@ -557,28 +557,30 @@ button {
 .allocation-content {
     display: flex;
     align-items: center;
-    gap: 20px; /* Add consistent gap between chart and list */
+    justify-content: center; /* Center the entire content */
+    gap: 30px; /* Increased gap for better spacing */
+    min-height: 300px; /* Ensure consistent height */
 }
 
 .allocation-chart {
     flex: 1;
-    position: relative;
-    height: 200px;
     display: flex;
-    justify-content: center; /* Center the chart horizontally */
-    align-items: center; /* Center the chart vertically */
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    max-width: 200px; /* Limit the chart container width */
 }
 
 #assetAllocationChart {
-    width: 200px !important; /* Fixed width for consistency */
-    height: 200px !important; /* Fixed height for consistency */
-    max-width: 200px;
-    max-height: 200px;
+    width: 180px !important; /* Slightly smaller for better fit */
+    height: 180px !important;
+    max-width: 180px;
+    max-height: 180px;
 }
 
 .donut-placeholder {
-    width: 150px;
-    height: 150px;
+    width: 180px; /* Reduced from 150px */
+    height: 180px; /* Reduced from 150px */
     border-radius: 50%;
     margin: 0 auto;
     position: relative;
@@ -587,10 +589,9 @@ button {
         var(--color-eth) 30% 50%,     /* ETH: 30% to 50% */
         var(--color-sol) 50% 70%,     /* SOL: 50% to 70% */
         var(--color-pepe) 70% 85%,    /* PEPE: 70% to 85% */
-        var(--color-usdt) 85% 100%,
-        var(--color-sui) 85% 100%    /* USDT: 85% to 100% */
-        var(--color-others 100% 100%   /* OTHERS: 100% */
-    ))
+        var(--color-usdt) 85% 95%,    /* USDT: 85% to 95% */
+        var(--color-sui) 95% 100%     /* SUI: 95% to 100% */
+    );
 }
 
 .donut-placeholder::after {
@@ -599,8 +600,8 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 70px;
-    height: 70px;
+    width: 80px; /* Increased inner circle */
+    height: 80px;
     background-color: var(--color-card-bg);
     border-radius: 50%;
 }
@@ -608,19 +609,28 @@ button {
 .allocation-list {
     flex: 1;
     padding-left: 20px;
+    max-width: 200px; /* Limit list width for better balance */
 }
 
+/* Ensure the card content has proper padding */
+.allocation-card .card-content {
+    padding: 25px; /* Increased padding */
+}
+
+/* Optional: Add some breathing room to allocation items */
 .allocation-item {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 12px; /* Increased spacing */
+    font-size: 0.9rem;
 }
 
 .allocation-color {
-    width: 12px;
-    height: 12px;
+    width: 14px; /* Slightly larger color indicator */
+    height: 14px;
     border-radius: 3px;
-    margin-right: 10px;
+    margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .allocation-color.btc {
