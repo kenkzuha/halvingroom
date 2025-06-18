@@ -200,7 +200,7 @@ function initializePriceRefresh() {
             } catch (error) {
                 console.error('Auto-refresh error:', error);
             }
-        }, 300000);
+        }, 30000);
     }
 }
 
