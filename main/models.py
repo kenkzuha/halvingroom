@@ -35,3 +35,17 @@ class Activity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} {self.get_action_display()} {self.quantity} {self.symbol}"
+
+class PortfolioSnapshot(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_value = models.DecimalField(max_digits=20, decimal_places=2)
+    timestamp = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'timestamp']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.total_value} at {self.timestamp}"

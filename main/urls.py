@@ -10,5 +10,6 @@ urlpatterns = [
     path('refresh_prices', views.refresh_prices, name='refresh_prices'),
     path('edit_asset/', views.edit_asset, name='edit_asset'),  
     path('delete_asset/', views.delete_asset, name='delete_asset'), 
+    path('portfolio_history/', views.portfolio_history, name='portfolio_history'),
     
 ]

@@ -8,6 +8,28 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 4px;
+            color: white;
+            z-index: 1000;
+            transition: opacity 0.5s;
+            opacity: 1;
+        }
+        
+        .notification.success {
+            background-color: #28a745;
+        }
+        
+        .notification.error {
+            background-color: #dc3545;
+        }
+    </style>
 </head>
 <body>
     {% load humanize %}
@@ -98,8 +120,6 @@
                                     <button class="time-button active" data-period="24h">24h</button>
                                     <button class="time-button" data-period="7d">7d</button>
                                     <button class="time-button" data-period="30d">30d</button>
-                                    <button class="time-button" data-period="90d">90d</button>
-                                    <button class="time-button" data-period="1y">1y</button>
                                     <button class="time-button" data-period="all">All</button>
                                 </div>
                             </div>
@@ -347,7 +367,11 @@
             <h2>Overall Profit</h2>
         </div>
     </div>
+    
+    <!-- Hidden element for historical data -->
+    <div id="historical-data" style="display: none;">{{ historical_data|safe }}</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="{% static 'frontend.js' %}"></script>
+<script src="{% static 'frontend.js' %}"></script>
 </body>
 </html>

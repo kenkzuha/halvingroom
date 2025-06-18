@@ -1,12 +1,68 @@
-import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from .models import UserAsset, Activity
+from .models import UserAsset, Activity, PortfolioSnapshot
 from decimal import Decimal
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
+import requests
+import json
+from datetime import timedelta
+
+# Utility function to create portfolio snapshots
+def take_portfolio_snapshot(user):
+    assets = UserAsset.objects.filter(user=user)
+    total_value = sum(asset.value for asset in assets)
+    
+    if total_value > 0:
+        snapshot = PortfolioSnapshot.objects.create(
+            user=user,
+            total_value=total_value
+        )
+        return True, total_value
+    return False, 0
+
+# Utility function to fetch historical data
+def fetch_historical_data(user, period='24h'):
+    now = timezone.now()
+    
+    if period == '24h':
+        start_time = now - timedelta(hours=24)
+        time_format = '%H:%M'
+    elif period == '7d':
+        start_time = now - timedelta(days=7)
+        time_format = '%m/%d'
+    elif period == '30d':
+        start_time = now - timedelta(days=30)
+        time_format = '%m/%d'
+    else:  # all
+        start_time = None
+        time_format = '%m/%d'
+    
+    snapshots = PortfolioSnapshot.objects.filter(user=user)
+    if start_time:
+        snapshots = snapshots.filter(timestamp__gte=start_time)
+    
+    snapshots = snapshots.order_by('timestamp')
+    
+    labels = [s.timestamp.strftime(time_format) for s in snapshots]
+    data = [float(s.total_value) for s in snapshots]
+    
+    if not data:
+        return {
+            'labels': [],
+            'data': [],
+            'min': 0,
+            'max': 100
+        }
+    
+    return {
+        'labels': labels,
+        'data': data,
+        'min': min(data) * 0.98,
+        'max': max(data) * 1.02
+    }
 
 def get_price_change_percent(symbol):
     url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={symbol}"
@@ -29,6 +85,7 @@ def index(request):
     total_value = Decimal('0.00')
     asset_percentages = []
     recent_activities = []
+    historical_data = None
     
     if request.user.is_authenticated:
         user_assets = UserAsset.objects.filter(user=request.user)
@@ -36,8 +93,7 @@ def index(request):
         if request.GET.get('refresh_prices') == 'true':
             for asset in user_assets:
                 update_asset_price(asset)
-            
-            user_assets = UserAsset.objects.filter(user=request.user)
+            take_portfolio_snapshot(request.user)
             
         user_assets = sorted(user_assets, key=lambda asset: asset.value, reverse=True)
         total_value = sum(asset.value for asset in user_assets)
@@ -53,12 +109,16 @@ def index(request):
             asset_percentages.sort(key=lambda x: x['percentage'], reverse=True)
         
         recent_activities = Activity.objects.filter(user=request.user).order_by('-timestamp')[:3]
+        
+        # Get initial historical data for the chart
+        historical_data = fetch_historical_data(request.user, '24h')
     
     return render(request, 'index.html', {
         'user_assets': user_assets,
         'total_value': total_value,
         'asset_percentages': asset_percentages,
-        'recent_activities': recent_activities
+        'recent_activities': recent_activities,
+        'historical_data': json.dumps(historical_data) if historical_data else '{}'
     })
 
 def add_asset(request):
@@ -86,7 +146,6 @@ def add_asset(request):
                     'PEPE': Decimal('0.00001444'),
                     'USDT': Decimal('1'),
                     'SUI': Decimal('3'),
-                    
                 }
                 price = fallback_prices.get(symbol, Decimal('0'))
                 messages.warning(request, f'Could not fetch live price for {symbol}. Using fallback price.')
@@ -100,6 +159,7 @@ def add_asset(request):
                 existing_asset.price = price
                 existing_asset.save()
                 create_activity(request.user, 'add', symbol, holdings, value)
+                take_portfolio_snapshot(request.user)
                 messages.success(request, f'Added {holdings} {symbol} to your existing holdings.')
             else:
                 new_asset = UserAsset(
@@ -111,6 +171,7 @@ def add_asset(request):
                 )
                 new_asset.save()
                 create_activity(request.user, 'add', symbol, holdings, value)
+                take_portfolio_snapshot(request.user)
                 messages.success(request, f'Added {holdings} {symbol} to your portfolio.')
                 
         except Exception as e:
@@ -132,6 +193,7 @@ def edit_asset(request):
         asset.value = asset.holdings * asset.price
         asset.save()
         create_activity(request.user, 'edit', asset.symbol, holdings, asset.value)
+        take_portfolio_snapshot(request.user)
         messages.success(request, f'Updated {asset.symbol} holdings to {holdings}.')
         
     return redirect('index')
@@ -142,6 +204,7 @@ def delete_asset(request):
         asset = UserAsset.objects.get(id=asset_id, user=request.user)
         create_activity(request.user, 'delete', asset.symbol, asset.holdings, asset.value)
         asset.delete()
+        take_portfolio_snapshot(request.user)
         messages.success(request, f'Deleted {asset.symbol} from your portfolio.')
     return redirect('index')
 
@@ -175,6 +238,9 @@ def refresh_prices(request):
                 updated_count += 1
                 
         total_value = sum(asset.value for asset in UserAsset.objects.filter(user=request.user))
+        
+        # Take snapshot after price refresh
+        take_portfolio_snapshot(request.user)
                 
         return JsonResponse({
             'success': True, 
@@ -183,6 +249,19 @@ def refresh_prices(request):
         })
         
     return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def portfolio_history(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Not authenticated'}, status=401)
+    
+    period = request.GET.get('period', '24h')
+    data = fetch_historical_data(request.user, period)
+    
+    return JsonResponse({
+        'success': True,
+        'data': data
+    })
 
 def signup(request):
     if request.method == "POST":

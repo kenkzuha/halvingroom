@@ -1,3 +1,4 @@
+// frontend.js
 document.addEventListener('DOMContentLoaded', function() {
     // Modal functionality
     initializeModals();
@@ -125,234 +126,147 @@ function initializeModals() {
 function initializePriceRefresh() {
     const refreshButton = document.getElementById("refreshButton");
     if (refreshButton) {
-        refreshButton.addEventListener('click', function() {
+        refreshButton.addEventListener('click', async function() {
             this.disabled = true;
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
             
-            fetch('/refresh_prices', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch('/refresh_prices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
                 if (data.success) {
-                    window.location.reload();
+                    document.getElementById('totalValue').textContent = '$' + data.total_value.toFixed(2);
+                    
+                    const activePeriod = document.querySelector('.time-button.active')?.getAttribute('data-period') || '24h';
+                    const historyResponse = await fetch(`/portfolio_history/?period=${activePeriod}`);
+                    const historyData = await historyResponse.json();
+                    
+                    if (historyData.success) {
+                        window.portfolioChart.data.labels = historyData.data.labels;
+                        window.portfolioChart.data.datasets[0].data = historyData.data.data;
+                        window.portfolioChart.options.scales.y.min = historyData.data.min;
+                        window.portfolioChart.options.scales.y.max = historyData.data.max;
+                        window.portfolioChart.update();
+                    }
+                    
+                    showNotification('Prices refreshed successfully!');
                 } else {
-                    alert('Error refreshing prices: ' + data.message);
+                    showNotification('Error refreshing prices: ' + data.message, 'error');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                alert('Network error while refreshing prices');
-            })
-            .finally(() => {
+                showNotification('Network error while refreshing prices', 'error');
+            } finally {
                 this.disabled = false;
                 this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Prices';
-            });
+            }
         });
         
-        // Auto refresh prices every 5 minutes (300000 ms)
-        setupAutoRefresh();
+        // Auto refresh prices every 5 minutes
+        setInterval(async () => {
+            try {
+                const response = await fetch('/refresh_prices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('totalValue').textContent = '$' + data.total_value.toFixed(2);
+                    
+                    if (window.portfolioChart) {
+                        const activePeriod = document.querySelector('.time-button.active')?.getAttribute('data-period') || '24h';
+                        const historyResponse = await fetch(`/portfolio_history/?period=${activePeriod}`);
+                        const historyData = await historyResponse.json();
+                        
+                        if (historyData.success) {
+                            window.portfolioChart.data.labels = historyData.data.labels;
+                            window.portfolioChart.data.datasets[0].data = historyData.data.data;
+                            window.portfolioChart.options.scales.y.min = historyData.data.min;
+                            window.portfolioChart.options.scales.y.max = historyData.data.max;
+                            window.portfolioChart.update();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Auto-refresh error:', error);
+            }
+        }, 300000);
     }
 }
 
-/**
- * Set up automatic price refresh every 5 minutes
- */
-function setupAutoRefresh() {
-    const AUTO_REFRESH_INTERVAL = 30000;
-    
-    setInterval(() => {
-        if (document.getElementById("refreshButton")) {
-            console.log("Auto-refreshing prices...");
-            fetch('/refresh_prices', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('totalValue').innerText = '$' + parseFloat(data.total_value).toFixed(2);
-                }
-            })
-            .catch(error => {
-                console.error('Auto-refresh error:', error);
-            });
-        }
-    }, AUTO_REFRESH_INTERVAL);
-}
-
-/**
- * Updated time period buttons handler
- */
 function initializeTimeButtons() {
     const timeButtons = document.querySelectorAll('.time-button');
     
-    if (!timeButtons.length) return;
-    
     timeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
+        button.addEventListener('click', async function() {
             timeButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
             this.classList.add('active');
             
-            // Get the time period
             const period = this.getAttribute('data-period');
             
-            let newLabels, newData, yAxisMin, yAxisMax;
-            
-            // Update chart based on selected period
-            switch(period) {
-                case '24h':
-                    newLabels = window.timeLabels; // Use time labels
-                    newData = window.hourlyData; // Use hourly data
-                    yAxisMin = Math.min(...window.hourlyData) * 0.98;
-                    yAxisMax = Math.max(...window.hourlyData) * 1.02;
-                    break;
-                case '7d':
-                    newLabels = window.dates.slice(-7);
-                    newData = window.portfolioData.slice(-7);
-                    yAxisMin = Math.min(...window.portfolioData.slice(-7)) * 0.98;
-                    yAxisMax = Math.max(...window.portfolioData.slice(-7)) * 1.02;
-                    break;
-                case '30d':
-                    newLabels = window.dates.slice(-30);
-                    newData = window.portfolioData.slice(-30);
-                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
-                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
-                    break;
-                case '90d':
-                    // For 90d, we'll extend the data array
-                    newLabels = window.dates.slice(-30); // Use available data
-                    newData = window.portfolioData.slice(-30);
-                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
-                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
-                    break;
-                case '1y':
-                    newLabels = window.dates.slice(-30); // Use available data
-                    newData = window.portfolioData.slice(-30);
-                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
-                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
-                    break;
-                case 'all':
-                    newLabels = window.dates;
-                    newData = window.portfolioData;
-                    yAxisMin = Math.min(...window.portfolioData) * 0.98;
-                    yAxisMax = Math.max(...window.portfolioData) * 1.02;
-                    break;
-                default:
-                    newLabels = window.dates.slice(-30);
-                    newData = window.portfolioData.slice(-30);
-                    yAxisMin = Math.min(...window.portfolioData.slice(-30)) * 0.98;
-                    yAxisMax = Math.max(...window.portfolioData.slice(-30)) * 1.02;
+            try {
+                const response = await fetch(`/portfolio_history/?period=${period}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.portfolioChart.data.labels = data.data.labels;
+                    window.portfolioChart.data.datasets[0].data = data.data.data;
+                    window.portfolioChart.options.scales.y.min = data.data.min;
+                    window.portfolioChart.options.scales.y.max = data.data.max;
+                    window.portfolioChart.update();
+                }
+            } catch (error) {
+                console.error('Error fetching portfolio history:', error);
             }
-            
-            // Update chart data
-            window.portfolioChart.data.labels = newLabels;
-            window.portfolioChart.data.datasets[0].data = newData;
-            
-            // Update Y-axis range
-            window.portfolioChart.options.scales.y.min = yAxisMin;
-            window.portfolioChart.options.scales.y.max = yAxisMax;
-            
-            // Update the chart
-            window.portfolioChart.update();
         });
     });
 }
+
 /**
- * Initialize portfolio chart with time-based labels for 24h period
+ * Initialize portfolio chart with real data
  */
 function initializePortfolioChart() {
     const portfolioChartElement = document.getElementById('portfolioChart');
     if (!portfolioChartElement) return;
     
+    const historicalDataEl = document.getElementById('historical-data');
+    let initialData;
+    try {
+        initialData = historicalDataEl ? JSON.parse(historicalDataEl.textContent) : {labels: [], data: [], min: 0, max: 100};
+    } catch (e) {
+        console.error('Error parsing historical data:', e);
+        initialData = {labels: [], data: [], min: 0, max: 100};
+    }
+    
     const ctx = portfolioChartElement.getContext('2d');
     
-    // Generate different date/time arrays for different periods
-    window.dates = [];
-    window.timeLabels = []; // New array for 24h time labels
-    
-    // Generate regular dates (for 7d, 30d, etc.)
-    const now = new Date();
-    for (let i = 29; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(now.getDate() - i);
-        window.dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    }
-    
-    // Generate 24-hour time labels (every hour for last 24 hours)
-    for (let i = 23; i >= 0; i--) {
-        const timePoint = new Date();
-        timePoint.setHours(timePoint.getHours() - i);
-        const timeString = timePoint.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: false // Use 24-hour format, change to true for 12-hour format
-        });
-        window.timeLabels.push(timeString);
-    }
-    
-    // Extract current portfolio value
-    let totalValueElement = document.getElementById('totalValue');
-    let currentPortfolioValue = 0;
-    
-    if (totalValueElement) {
-        const valueText = totalValueElement.innerText || totalValueElement.textContent;
-        currentPortfolioValue = parseFloat(valueText.replace(/[^0-9.-]+/g, '')) || 0;
-    }
-    
-    // Generate data for 30 days (regular periods)
-    let baseValue = currentPortfolioValue * 0.8;
-    window.portfolioData = [];
-    for (let i = 0; i < 30; i++) {
-        const dailyChange = baseValue * (Math.random() * 0.027 - 0.012);
-        baseValue += dailyChange;
-        window.portfolioData.push(Math.round(baseValue));
-    }
-    window.portfolioData[window.portfolioData.length - 1] = Math.round(currentPortfolioValue);
-    
-    // Generate data for 24 hours (hourly data)
-    let hourlyBaseValue = currentPortfolioValue * 0.95;
-    window.hourlyData = [];
-    for (let i = 0; i < 24; i++) {
-        const hourlyChange = hourlyBaseValue * (Math.random() * 0.008 - 0.004); // Smaller hourly changes
-        hourlyBaseValue += hourlyChange;
-        window.hourlyData.push(Math.round(hourlyBaseValue));
-    }
-    window.hourlyData[window.hourlyData.length - 1] = Math.round(currentPortfolioValue);
-    
-    // Gradient fill
     const gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
     gradientFill.addColorStop(0, 'rgba(247, 147, 26, 0.6)');
     gradientFill.addColorStop(0.8, 'rgba(247, 147, 26, 0.1)');
     gradientFill.addColorStop(1, 'rgba(247, 147, 26, 0)');
     
-    // Initialize with 24h data (time labels)
     window.portfolioChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: window.timeLabels, // Start with time labels for 24h view
+            labels: initialData.labels,
             datasets: [{
                 label: 'Portfolio Value',
-                data: window.hourlyData, // Start with hourly data
+                data: initialData.data,
                 borderColor: '#f7931a',
                 backgroundColor: gradientFill,
                 borderWidth: 2,
                 pointRadius: 0,
                 pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#f7931a',
-                pointHoverBorderColor: '#ffffff',
-                pointHoverBorderWidth: 2,
-                tension: 0.3,
                 fill: true
             }]
         },
@@ -373,7 +287,10 @@ function initializePortfolioChart() {
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return '$ ' + Math.round(context.parsed.y).toLocaleString();
+                            return '$ ' + context.parsed.y.toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
                         }
                     }
                 }
@@ -396,12 +313,15 @@ function initializePortfolioChart() {
                         color: '#718096',
                         font: { size: 10 },
                         callback: function(value) {
-                            return '$ ' + Math.round(value).toLocaleString();
+                            return '$ ' + value.toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
                         },
                         maxTicksLimit: 5
                     },
-                    min: Math.min(...window.hourlyData) * 0.98,
-                    max: Math.max(...window.hourlyData) * 1.02
+                    min: initialData.min,
+                    max: initialData.max
                 }
             },
             interaction: { intersect: false, mode: 'index' },
@@ -415,12 +335,8 @@ function initializePortfolioChart() {
  */
 function initializeAssetAllocationChart() {
     const canvas = document.getElementById('assetAllocationChart');
-    if (!canvas) {
-        console.error('Allocation chart canvas not found');
-        return;
-    }
+    if (!canvas) return;
 
-    // Safely destroy previous chart if it exists
     if (window.assetAllocationChart && typeof window.assetAllocationChart.destroy === 'function') {
         try {
             window.assetAllocationChart.destroy();
@@ -433,7 +349,6 @@ function initializeAssetAllocationChart() {
     const allocationItems = document.querySelectorAll('.allocation-item');
     const noAssetOverlay = document.getElementById('noAssetOverlay');
 
-    // Check if we have valid assets
     let hasAssets = false;
     let assetData = [];
     
@@ -447,8 +362,7 @@ function initializeAssetAllocationChart() {
             const symbol = nameElement.textContent.trim();
             const percentage = parseFloat(percentElement.textContent);
             
-            // Get color from class
-            let color = '#f7931a'; // default BTC color
+            let color = '#f7931a';
             if (colorElement.classList.contains('btc')) color = '#f7931a';
             else if (colorElement.classList.contains('eth')) color = '#627eea';
             else if (colorElement.classList.contains('sol')) color = '#00ffbd';
@@ -466,13 +380,11 @@ function initializeAssetAllocationChart() {
         }
     });
 
-    // Toggle overlay
     if (noAssetOverlay) {
         noAssetOverlay.style.display = hasAssets ? 'none' : 'flex';
     }
 
     if (hasAssets) {
-        // Sort by percentage (highest to lowest)
         assetData.sort((a, b) => b.percentage - a.percentage);
         
         const labels = assetData.map(item => item.symbol);
@@ -513,12 +425,11 @@ function initializeAssetAllocationChart() {
             console.error('Error creating allocation chart:', e);
         }
     } else {
-        // Clear canvas if no assets
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 
-// bagian 24hr changes
+// 24hr changes
 document.addEventListener("DOMContentLoaded", function () {
     const rows = document.querySelectorAll("#assetTableBody tr[data-symbol]");
 
@@ -551,77 +462,92 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Enhanced Portfolio Summary Change Display
+// Portfolio Summary Change Display
 document.addEventListener("DOMContentLoaded", () => {
     const totalValueEl = document.getElementById("totalValue");
     const changeEl = document.getElementById("changeDisplay");
 
-    // Validation checks
-    if (!totalValueEl || !changeEl) {
-        console.error("Required elements not found");
-        return;
-    }
+    if (!totalValueEl || !changeEl) return;
 
-    // Extract current value from text content
     const currentValueText = totalValueEl.textContent || totalValueEl.innerText || "";
     const currentValue = parseFloat(currentValueText.replace(/[^0-9.-]/g, ""));
     
-    // Get previous value from data attribute or localStorage as fallback
     const previousValueText = totalValueEl.dataset.previous || localStorage.getItem('previousPortfolioValue') || currentValue.toString();
     const previousValue = parseFloat(previousValueText);
 
-    // Store current value for next time (if using localStorage fallback)
     if (!totalValueEl.dataset.previous) {
         localStorage.setItem('previousPortfolioValue', currentValue.toString());
     }
 
-    // Validation for numeric values
     if (isNaN(currentValue) || isNaN(previousValue)) {
-        console.error("Invalid numeric values:", { currentValue, previousValue });
         changeEl.innerHTML = '<span style="color: #6c757d;">N/A</span>';
         return;
     }
 
-    // Calculate difference and percentage
     const difference = currentValue - previousValue;
     const percentage = previousValue !== 0 ? (difference / previousValue) * 100 : 0;
     const isGain = difference > 0;
     const isLoss = difference < 0;
     const isNeutral = difference === 0;
 
-    // Determine colors and icons
     let textColor, arrow;
     
     if (isNeutral) {
-        textColor = "#6c757d"; // Gray for neutral
+        textColor = "#6c757d";
         arrow = '<i class="fas fa-minus"></i>';
     } else if (isGain) {
-        textColor = "#28a745"; // Green for gains   
+        textColor = "#28a745";
         arrow = '<i class="fas fa-caret-up"></i>';
     } else if (isLoss) {
-        textColor = "#dc3545"; // Red for losses
+        textColor = "#dc3545";
         arrow = '<i class="fas fa-caret-down"></i>';
     }
 
-    // Format the display
     const formattedPercentage = Math.abs(percentage).toFixed(2);
     const formattedDifference = Math.abs(difference).toFixed(2);
     
-    // Update the change element
     changeEl.innerHTML = `
         ${arrow} ${formattedPercentage}%
         (<span style="color:${textColor}">$${formattedDifference}</span>)
     `;
     changeEl.style.color = textColor;
-
-    // Optional: Add animation class for visual feedback
     changeEl.classList.add('portfolio-change-updated');
-    
-    // Log for debugging (remove in production)
-    console.log('Portfolio Change Updated:', {
-        currentValue,
-        previousValue,
-        difference,
-        percentage: `${formattedPercentage}%`
-    });
 });
+
+// Notification system
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// CSS for notifications
+const style = document.createElement('style');
+style.textContent = `
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1000;
+    transition: opacity 0.5s;
+    opacity: 1;
+}
+
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
+`;
+document.head.appendChild(style);
